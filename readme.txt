@@ -3,7 +3,7 @@ Contributors: chartbeat
 Tags: chartbeat, analytics
 Requires at least: 2.8
 Tested up to: 2.9.2
-Stable tag: 1.1
+Stable tag: 1.2
 
 Automatically adds pinging code for chartbeat real-time analytics service and provides top pages widget.
 
@@ -63,3 +63,9 @@ richer sense of how people are using your site.
 
 = 1.0 =
 * First verison. Please provide feedback.
+
+= 1.2 =
+* stable version
+
+= 1.3 =
+* 'trackadmin' option added by Jesse S. McDougall, jesse@catalystwebworks.com

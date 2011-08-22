@@ -1,15 +1,15 @@
 <?php
 /*
 Plugin Name: Chartbeat
-Plugin URI: http://chartbeat.com/wordpress
+Plugin URI: http://chartbeat.com/wordpress/
 Description: Adds Chartbeat pinging to Wordpress.
-Version: 1.2
+Version: 1.3
 Author: Chartbeat
-Author URI: http://chartbeat.com
+Author URI: http://chartbeat.com/
 */
 
 /*
-Copyright 2009 Chartbeat Inc.
+Copyright 2009-2011 Chartbeat Inc.
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -26,6 +26,7 @@ Copyright 2009 Chartbeat Inc.
 add_option('chartbeat_userid');
 add_option('chartbeat_apikey');
 add_option('chartbeat_widgetconfig');
+add_option('chartbeat_trackadmins'); // Add trackadmin option
 
 
 function chartbeat_menu() {
@@ -55,8 +56,17 @@ To enable tracking, you must enter your chartbeat user id. <a href="#" onclick="
 <table class="form-table">
 <tr><th scope="row">User ID</th>
 <td><input size="30" type="text" name="chartbeat_userid" value="<?php echo get_option('chartbeat_userid'); ?>" /></td>
-</tr></table>
+</tr>
+
+<?php?>
+<tr><th scope="row"><?php _e('Track visits by Site Admins?','chartbeat'); ?><br /><small>Administrators must be logged in to avoid tracking.</small></th>
+<td><input type="radio" name="chartbeat_trackadmins" value="1" <?php checked( get_option('chartbeat_trackadmins'), 1 ); ?> /> Yes <input type="radio" name="chartbeat_trackadmins" value="0" <?php checked( get_option('chartbeat_trackadmins'), 0 ); ?> /> No</td>
+</tr>
+<?php?>
+
+</table>
 <br/><br/>
+
 <script src="http://static.chartbeat.com/js/topwidgetv2.js" type="text/javascript" language="javascript"></script> 
 <script type="text/javascript" language="javascript"> 
 var themes = { 'doe':   { 'bgcolor': '', 'border': '#dde7d4', 'text': '#555' },
@@ -136,7 +146,7 @@ In order for the widget to work, copy your API key into the space below.
 
 <input type="hidden" name="action" value="update" />
 <input type="hidden" id="chartbeat_widgetconfig" name="chartbeat_widgetconfig" value="{}" />
-<input type="hidden" name="page_options" value="chartbeat_userid,chartbeat_apikey,chartbeat_widgetconfig"/>
+<input type="hidden" name="page_options" value="chartbeat_userid,chartbeat_apikey,chartbeat_widgetconfig,chartbeat_trackadmins"/>
 
 <p class="submit">
 <input type="submit" class="button-primary" value="<?php _e('Save Changes') ?>" />
@@ -152,6 +162,7 @@ function chartbeat_register_settings() {
 	register_setting('chartbeat-options','chartbeat_userid');
 	register_setting('chartbeat-options','chartbeat_apikey');
 	register_setting('chartbeat-options','chartbeat_widgetconfig');
+	register_setting('chartbeat-options','chartbeat_trackadmins'); // add trackadmin setting
 	
 }
 
@@ -162,7 +173,13 @@ function add_chartbeat_head() {
 function add_chartbeat_footer() {
   $user_id = get_option('chartbeat_userid');
   if ($user_id) {
+	if (current_user_can('manage_options') && get_option('chartbeat_trackadmins') == 0) {  // if visitor is admin AND tracking is off
+		// do not load chartbeat
+	} else {
+		// load chartbeat js
 ?>
+
+<!-- /// LOAD CHARTBEAT /// -->
 <script type="text/javascript">
 var _sf_async_config={uid:<?php print $user_id ?>};
 (function(){
@@ -182,6 +199,7 @@ var _sf_async_config={uid:<?php print $user_id ?>};
 })();
 </script>
 <?php
+	}
   }
 }
 
