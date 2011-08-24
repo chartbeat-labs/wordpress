@@ -163,11 +163,11 @@ In order for the widget to work, copy your API key into the space below.
 
 // Function to register settings and sanitize output. To be called later in add_action
 function chartbeat_register_settings() {
-	register_setting('chartbeat-options','chartbeat_userid');
-	register_setting('chartbeat-options','chartbeat_apikey');
-	register_setting('chartbeat-options','chartbeat_widgetconfig');
-	register_setting('chartbeat-options','chartbeat_trackadmins'); // add trackadmin setting
-        register_setting('chartbeat-options','chartbeat_enable_newsbeat');
+    register_setting('chartbeat-options','chartbeat_userid');
+    register_setting('chartbeat-options','chartbeat_apikey');
+    register_setting('chartbeat-options','chartbeat_widgetconfig');
+    register_setting('chartbeat-options','chartbeat_trackadmins'); // add trackadmin setting
+    register_setting('chartbeat-options','chartbeat_enable_newsbeat');
 }
 
 function add_chartbeat_head() {
