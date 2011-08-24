@@ -27,6 +27,7 @@ add_option('chartbeat_userid');
 add_option('chartbeat_apikey');
 add_option('chartbeat_widgetconfig');
 add_option('chartbeat_trackadmins'); // Add trackadmin option
+add_option('chartbeat_enable_newsbeat');
 
 
 function chartbeat_menu() {
@@ -58,11 +59,14 @@ To enable tracking, you must enter your chartbeat user id. <a href="#" onclick="
 <td><input size="30" type="text" name="chartbeat_userid" value="<?php echo get_option('chartbeat_userid'); ?>" /></td>
 </tr>
 
-<?php?>
 <tr><th scope="row"><?php _e('Track visits by Site Admins?','chartbeat'); ?><br /><small>Administrators must be logged in to avoid tracking.</small></th>
 <td><input type="radio" name="chartbeat_trackadmins" value="1" <?php checked( get_option('chartbeat_trackadmins'), 1 ); ?> /> Yes <input type="radio" name="chartbeat_trackadmins" value="0" <?php checked( get_option('chartbeat_trackadmins'), 0 ); ?> /> No</td>
 </tr>
-<?php?>
+
+<tr>
+    <th scope="row"><?php _e('Enable newsbeat?','chartbeat'); ?><br /><small>Sign up for <a href="http://chartbeat.com/newsbeat/">newsbeat</a>.</small></th>
+    <td><input type="radio" name="chartbeat_enable_newsbeat" value="1" <?php checked( get_option('chartbeat_enable_newsbeat'), 1 ); ?> /> Yes <input type="radio" name="chartbeat_enable_newsbeat" value="0" <?php checked( get_option('chartbeat_enable_newsbeat'), 0 ); ?> /> No</td>
+</tr>
 
 </table>
 <br/><br/>
@@ -146,7 +150,7 @@ In order for the widget to work, copy your API key into the space below.
 
 <input type="hidden" name="action" value="update" />
 <input type="hidden" id="chartbeat_widgetconfig" name="chartbeat_widgetconfig" value="{}" />
-<input type="hidden" name="page_options" value="chartbeat_userid,chartbeat_apikey,chartbeat_widgetconfig,chartbeat_trackadmins"/>
+<input type="hidden" name="page_options" value="chartbeat_userid,chartbeat_apikey,chartbeat_widgetconfig,chartbeat_trackadmins,chartbeat_enable_newsbeat"/>
 
 <p class="submit">
 <input type="submit" class="button-primary" value="<?php _e('Save Changes') ?>" />
@@ -159,11 +163,11 @@ In order for the widget to work, copy your API key into the space below.
 
 // Function to register settings and sanitize output. To be called later in add_action
 function chartbeat_register_settings() {
-	register_setting('chartbeat-options','chartbeat_userid');
-	register_setting('chartbeat-options','chartbeat_apikey');
-	register_setting('chartbeat-options','chartbeat_widgetconfig');
-	register_setting('chartbeat-options','chartbeat_trackadmins'); // add trackadmin setting
-	
+    register_setting('chartbeat-options','chartbeat_userid');
+    register_setting('chartbeat-options','chartbeat_apikey');
+    register_setting('chartbeat-options','chartbeat_widgetconfig');
+    register_setting('chartbeat-options','chartbeat_trackadmins'); // add trackadmin setting
+    register_setting('chartbeat-options','chartbeat_enable_newsbeat');
 }
 
 function add_chartbeat_head() {
@@ -181,7 +185,38 @@ function add_chartbeat_footer() {
 
 <!-- /// LOAD CHARTBEAT /// -->
 <script type="text/javascript">
-var _sf_async_config={uid:<?php print $user_id ?>};
+var _sf_async_config={};
+_sf_async_config.uid = <?php print $user_id ?>;
+<?php $enable_newsbeat = get_option('chartbeat_enable_newsbeat');
+if ($enable_newsbeat) { ?>
+_sf_async_config.domain = '<?php echo esc_attr($_SERVER['HTTP_HOST']); ?>';
+<?php 
+// Only add these values on blog posts use the queried object in case there
+// are multiple Loops on the page.
+if (is_single()) {
+    global $wp_query;
+    $post = $wp_query->get_queried_object();
+
+    // Use the author's display name 
+    $author = esc_attr(get_the_author_meta('display_name', $post->post_author)); 
+    printf("_sf_async_config.authors = '%s';\n", $author);
+
+    // Use the post's categories as sections
+    $cats = get_the_terms($post->ID, 'category');
+    if ($cats) {
+        $cat_names = array();
+        foreach ($cats as $cat) {
+            $cat_names[] = '"' . esc_attr($cat->name) . '"';
+        }
+    }
+    if ( count( $cat_names ) ) {
+        printf("_sf_async_config.sections = [%s];\n", 
+            implode(', ', $cat_names));
+    }
+}
+?>
+<?php } // if $enable_newsbeat ?>
+
 (function(){
   function loadChartbeat() {
     window._sf_endpt=(new Date()).getTime();
