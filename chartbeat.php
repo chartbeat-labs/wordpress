@@ -264,6 +264,114 @@ function chartbeat_widget_init() {
 add_action('widgets_init', 'chartbeat_widget_init');
 add_action('admin_menu', 'chartbeat_menu');
 
+// Dashboard Widget
+
+function chartbeat_dashboard_widget_function() {
+?>
+<script type="text/javascript" language="javascript"> 
+	jQuery.getJSON('http://api.chartbeat.com/live/quickstats/?host=<?php echo esc_attr($_SERVER['HTTP_HOST']); ?>&apikey=<?php echo get_option('chartbeat_apikey')?>',
+		function(data) {
+			jQuery("#chartbeat_dashboard_widget #vts").after(data.visits);
+			jQuery("#chartbeat_dashboard_widget #dr").after(data.direct);
+			jQuery("#chartbeat_dashboard_widget #in").after(data.internal);
+			jQuery("#chartbeat_dashboard_widget #so").after(data.social);
+			jQuery("#chartbeat_dashboard_widget #sr").after(data.search);
+			jQuery("#chartbeat_dashboard_widget #pl").after(data.domload);
+		}
+	);
+</script>
+<div id="cb_stats">
+<span id="vts" class="tl">Active Vists: </span><br/>
+<span id="dr" class="tl">Direct Traffic: </span> <br/>
+<span id="in" class="tl">Internal Traffic: </span> <br/>
+<span id="so" class="tl">Social Traffic: </span> <br/>
+<span id="sr" class="tl">Search Traffic </span> <br/>
+<span id="pl" class="tl">Average Page Load: </span> <br/>
+</div>
+<script type="text/javascript" language="javascript">
+	google.load('visualization', '1', {'packages':['annotatedtimeline']});
+	google.setOnLoadCallback(drawChart);
+	function drawChart() {
+		jQuery.getJSON('http://api.chartbeat.com/historical/dashapi/data_series/?host=<?php echo esc_attr($_SERVER['HTTP_HOST']); ?>&apikey=<?php echo get_option('chartbeat_apikey')?>&days=2&minutes=20&type=summary&val=people',
+			function(cb_data) { 
+				var post_dates = [<?php
+				// Create a new filtering function that will add our where clause to the query
+				function filter_where( $where = '' ) {
+					$where .= " AND post_date > '" . date('Y-m-d', strtotime('-2 days')) . "'";
+					return $where;
+				}
+				add_filter( 'posts_where', 'filter_where' );
+				$args = array('post_type'=>array('post'),'post_status'=>'any','orderby' => 'date', 'order' => 'ASC' );
+				$the_query = new WP_Query( $args );
+				remove_filter( 'posts_where', 'filter_where' );
+				$i = 1;
+				while( $the_query->have_posts() ): $the_query->the_post(); 
+				if ($i++ > 1): echo ','; endif; ?> [new Date(<?php echo the_time('Y,n-1,j,G,i'); ?>),'<?php echo the_title(); ?>']
+			<?php endwhile; 
+				wp_reset_postdata();?>
+				];
+				var strdate = new Date(cb_data.dates[0]*1000);
+				while(post_dates[0][0] < strdate ) post_dates.shift();
+				var data = new google.visualization.DataTable();
+					data.addColumn('datetime', 'Time');
+					data.addColumn('number', 'People');
+					data.addColumn('string', 'Title');
+					data.addColumn('string', 'Note');
+				var rows = [];
+					jQuery.each(cb_data.dates,function(i,utime) {
+						var row = [new Date(utime*1000), cb_data.people[i],undefined,undefined];
+						if(post_dates.length > 0 && row[0] >= post_dates[0][0]) row[2] = post_dates.shift()[1];
+						rows.push(row);
+					});
+					data.addRows(rows);
+				
+				console.debug(rows);
+				var chart = new google.visualization.AnnotatedTimeLine(document.getElementById('cb_graph'));
+				chart.draw(data, {displayAnnotations: true, dateFormat:'HH:mm MMMM dd, yyyy', legendPosition:'newRow', scaleType:'maximized', zoomEndTime: new Date()});
+			}
+		);
+	};
+</script>
+<div id="cb_graph" style='width: 600px; height: 240px;'></div>
+<?php
+} 
+
+function chartbeat_add_dashboard_widgets() {
+	wp_enqueue_script( 'charttools' );
+	wp_add_dashboard_widget('chartbeat_dashboard_widget', 'Chartbeat Dashboard Widget', 'chartbeat_dashboard_widget_function');	
+} 
+
+function chartbeat_plugin_admin_init() {
+    wp_register_script( 'charttools','https://www.google.com/jsapi');
+}
+
+add_action('wp_dashboard_setup', 'chartbeat_add_dashboard_widgets' );
+add_action( 'admin_init', 'chartbeat_plugin_admin_init' );
+
+// Add Column to Blog Manager
+add_filter('manage_posts_columns', 'chartbeat_columns');
+function chartbeat_columns($defaults) {
+	add_action('wp_enqueue_scripts', 'ensurejquery_method');
+    $defaults['cb_visits'] = __('Active Vists');
+    return $defaults;
+}
+add_action('manage_posts_custom_column', 'chartbeat_custom_columns', 10, 2);
+function chartbeat_custom_columns($column_name, $id) {
+    if( $column_name == 'cb_visits' ) {
+		$post_url = parse_url(get_permalink( $id )); ?>
+
+<script type="text/javascript" language="javascript">
+	jQuery.getJSON('http://api.chartbeat.com/live/quickstats/?host=<?php echo esc_attr($_SERVER['HTTP_HOST']); ?>&apikey=<?php echo get_option('chartbeat_apikey')?>&path=<?php echo urlencode ($post_url["path"])?>',
+		function(data) {
+			if ( !data.visits ) data.visits = 0;
+			jQuery('#post-<?php echo $id; ?> .cb_visits').append(data.visits);
+		}
+	);
+</script>
+<?php
+    }
+}
+
 
 // If admin register settings on page that have been saved
 // if not, add content to wp_head and wp_footer.
