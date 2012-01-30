@@ -31,9 +31,21 @@ add_option('chartbeat_enable_newsbeat');
 
 
 function chartbeat_menu() {
-  add_options_page('chartbeat plugin options', 'Chartbeat', 'administrator',
-      'chartbeat-options', 'chartbeat_options_page');
+  add_options_page('chartbeat plugin options', 'Chartbeat', 'administrator', 'chartbeat-options', 'chartbeat_options_page');
+  add_menu_page( 'Chartbeat Console', 'Chartbeat', 'edit_posts', chartbeat_console, chartbeat_console, plugins_url('media/chartbeat.png', __FILE__) );
 }
+
+
+function chartbeat_console() {
+	if (!current_user_can('edit_posts'))  {
+		wp_die( __('You do not have sufficient permissions to access this page.') );
+	}
+	?>
+	<iframe width=100% height=100% src="http://chartbeat.com/dashboard/?url=<?php echo chartbeat_get_display_url(esc_attr($_SERVER['HTTP_HOST']));?>&k=<?php echo get_option('chartbeat_apikey')?>&slim=1"></iframe>
+	<?php
+}
+
+
 
 function chartbeat_options_page() {
 ?>
@@ -71,8 +83,8 @@ To enable tracking, you must enter your chartbeat user id. <a href="#" onclick="
 </table>
 <br/><br/>
 
-<script src="http://static.chartbeat.com/js/topwidgetv2.js" type="text/javascript" language="javascript"></script> 
-<script type="text/javascript" language="javascript"> 
+<script src="http://static.chartbeat.com/js/topwidgetv2.js" type="text/javascript"></script> 
+<script type="text/javascript"> 
 var themes = { 'doe':   { 'bgcolor': '', 'border': '#dde7d4', 'text': '#555' },
     	       'gray':  { 'bgcolor': '#e3e3e3', 'border': '#333333', 'text': '#555', 'header_bgcolor': '#999999', 'header_color': '#fff' },
                'red':   { 'bgcolor': '#ffffff', 'border': '#cc3300', 'text': '#555', 'header_bgcolor': '#f5c5be', 'header_color': '#fff' },
@@ -245,8 +257,8 @@ function widget_chartbeat($args) {
 ?>
 <div id="cb_top_pages"></div>
 
-<script src="http://static.chartbeat.com/js/topwidgetv2.js" type="text/javascript" language="javascript"></script> 
-<script type="text/javascript" language="javascript"> 
+<script src="http://static.chartbeat.com/js/topwidgetv2.js" type="text/javascript"></script> 
+<script type="text/javascript"> 
 var options = { };
 new CBTopPagesWidget('<?php echo get_option('chartbeat_apikey')?>',
                      <?php echo get_option('chartbeat_widgetconfig')?>);
@@ -266,124 +278,92 @@ function chartbeat_widget_init() {
 add_action('widgets_init', 'chartbeat_widget_init');
 add_action('admin_menu', 'chartbeat_menu');
 
+function chartbeat_get_display_url( $url ){
+	return preg_replace("/(https?:\/\/)?(www\.)?/i","",$url);
+}
+
 function chartbeat_dashboard_widget_function() {
 ?>
-<script type="text/javascript" language="javascript"> 
-	jQuery.getJSON('http://api.chartbeat.com/live/quickstats/?host=<?php echo esc_attr($_SERVER['HTTP_HOST']); ?>&apikey=<?php echo get_option('chartbeat_apikey')?>',
-		function(data) {
-			jQuery("#chartbeat_dashboard_widget #vts").append(data.visits);
-			jQuery("#chartbeat_dashboard_widget #dr").append(data.direct);
-			jQuery("#chartbeat_dashboard_widget #in").append(data.internal);
-			jQuery("#chartbeat_dashboard_widget #so").append(data.social);
-			jQuery("#chartbeat_dashboard_widget #sr").append(data.search);
-			jQuery("#chartbeat_dashboard_widget #pl").append(data.domload);
-		}
-	);
-</script>
-<div id="cb_stats" class="cb_stats">
-<ul>
-<li id="vts" class="tl">Active Vists: </li>
-<li id="pl" class="tl">Average Page Load: </li> 
-</ul>
-</div>
-<div id="cb_traffic" class="cb_stats">
-<ul>
-<li id="dr" class="tl">Visits from Direct Traffic: </li> 
-<li id="in" class="tl">Visits from Internal Traffic: </li> 
-<li id="so" class="tl">Visits from Social Traffic: </li> 
-<li id="sr" class="tl">Visits from Search Traffic: </li> 
-</ul>
-</div>
-<script type="text/javascript" language="javascript">
-	google.load("visualization", "1", {packages:["corechart"]});
-	google.setOnLoadCallback(drawChart);
-	function drawChart() {
-		jQuery.getJSON('http://api.chartbeat.com/historical/dashapi/data_series/?host=<?php echo esc_attr($_SERVER['HTTP_HOST']); ?>&apikey=<?php echo get_option('chartbeat_apikey')?>&days=5&minutes=20&type=summary&val=people',
-			function(cb_data) { 
-				<?php
-				// Create a new filtering function that will add our where clause to the query
-				function filter_where( $where = '' ) {
-					$where .= " AND post_date > '" . date('Y-m-d', strtotime('-5 days')) . "'";
-					return $where;
-				}
-				add_filter( 'posts_where', 'filter_where' );
-				?>
-				// Get published posts
-				var post_dates = [<?php
-				$args = array('post_type'=>array('post'),'post_status'=>'publish','orderby' => 'date', 'order' => 'ASC' );
-				$the_query = new WP_Query( $args );
-				$i = 1;
-				while( $the_query->have_posts() ): $the_query->the_post(); 
-				if ($i++ > 1): echo ','; endif; ?> [new Date(<?php echo the_time('Y,n,j,G,i'); ?>),'<?php echo the_title(); ?>']<?php endwhile; 
-				wp_reset_postdata();?>]
-				console.debug(post_dates);
-				// Get revisions
-				var rev_dates = [<?php
-				$args = array('post_type'=>array('revision'),'post_status'=>'any','orderby' => 'date', 'order' => 'ASC' );
-				$the_query = new WP_Query( $args );
-				$i = 1;
-				while( $the_query->have_posts() ): $the_query->the_post(); 
-				if ($i++ > 1): echo ','; endif; ?> [new Date(<?php echo the_time('Y,n,j,G,i'); ?>),'<?php echo the_title(); ?>']<?php endwhile; 
-				wp_reset_postdata();
-				remove_filter( 'posts_where', 'filter_where' );?>
-				];
-				console.debug(rev_dates);
-				var strDate = new Date(cb_data.dates[0]*1000);
-				if ( post_dates.length ) {
-				  while(post_dates[0][0] < strDate ) post_dates.shift();
-				}
-				var data = new google.visualization.DataTable();
-					data.addColumn('datetime', 'Time');
-					data.addColumn('number', 'People');
-					data.addColumn({type:'string', role:'annotation'});
-					data.addColumn({type:'string', role:'annotationText'});
-				var rows = [];
-					jQuery.each(cb_data.dates,function(i,utime) {
-						var date = new Date(utime*1000);
-						var row = [date, cb_data.people[i], null, null];
-						if (row[1] == null) row[1] = 0;
-						if (rev_dates.length && row[0] >= rev_dates[0][0]) {
-							row[2] = 'Revision';
-							row[3] = rev_dates.shift()[1];
-						}
-						if (post_dates.length && row[0] >= post_dates[0][0]) {
-							row[2] = 'Post';
-							row[3] = post_dates.shift()[1];
-						}
-						rows.push(row);
-					});
-					data.addRows(rows);
+<div id="chartbeatGauge"></div>
+<div id="chartbeatRefsTable" class="chartbeatWidget">
+	<table id="chartbeatLinks" class="chartbeatTable"><thead><tr><th colspan=2 class="chartbeatLabel">Top Referrers</th></tr></thead><tbody></tbody></table>
+	<table id="chartbeatSearch" class="chartbeatTable"><thead><tr><th colspan=2 class="chartbeatLabel">Top Search</th></tr></thead><tbody></tbody></table><div class="clear"></div></div>
+<div id="chartbeatGraph" class="chartbeatWidget clear"><div class="chartbeatLabel">Visitors - Last 3 Day</div><div id="chartbeatHist"><div id="annotations"></div></div></div>
+<script type="text/javascript">
+<?php
+// Create a new filtering function that will add our where clause to the query
+function filter_where( $where = '' ) {
+	$where .= " AND post_modified > '" . date('Y-m-d', strtotime('-3 days')) . "'";
+	return $where;
+}
+add_filter( 'posts_where', 'filter_where' );
+?>
+	var events = []
+	// Get published post Events 
+	<?php
+	$args = array('post_type'=>array('post'),'post_status'=>'publish','orderby' => 'date', 'order' => 'ASC' );
+	$the_query = new WP_Query( $args );
+	while( $the_query->have_posts() ): $the_query->the_post(); 
+	$tstamp = get_the_time('Y,n-1,j,G,i');
+	if ($tstamps[$tstamp]) continue; 
+	$tstamps[$tstamp] = true;
+	$category = get_the_category();
+	if($category[0]){ $category_link = get_category_link($category[0]->cat_ID ); }
+	?>var ev = {domain:'<?php echo chartbeat_get_display_url(esc_attr($_SERVER['HTTP_HOST']));?>',title:'<?php echo the_title(); ?>',
+	  	value:'<?php echo chartbeat_get_display_url($category_link); ?>',group_name:'<?php echo chartbeat_get_display_url(get_page_link()); ?>',
+	  	t: new Date(<?php echo the_time('Y,n-1,j,G,i'); ?>).getTime()/1000,group_type:'page',num_referrers:10,id:'<?php echo the_ID(); ?>',type:'wp',data:{action_type:"create"}};
+	events.push(ev);
+	<?php endwhile; 
+	wp_reset_postdata();?>
+	// Get revisions
+	<?php
+	$args = array('post_type'=>array('revision'),'post_status'=>'inherit','orderby' => 'date', 'order' => 'ASC' );
+	$the_query = new WP_Query( $args );
+	while( $the_query->have_posts() ): $the_query->the_post();  
+	$tstamp = get_the_time('Y,n-1,j,G,i');
+	if ($tstamps[$tstamp]) continue; 
+	$tstamps[$tstamp] = true;
+	$category = get_the_category();
+	if($category[0]){ $category_link = get_category_link($category[0]->cat_ID ); }
+	?>var ev = {domain:'<?php echo chartbeat_get_display_url(esc_attr($_SERVER['HTTP_HOST']));?>',title:'<?php echo the_title(); ?>',
+	  	value:'<?php echo chartbeat_get_display_url($category_link); ?>',group_name:'<?php echo chartbeat_get_display_url(get_page_link()); ?>',
+	  	t: new Date(<?php echo the_time('Y,n-1,j,G,i'); ?>).getTime()/1000,group_type:'page',num_referrers:10,id:'<?php echo the_ID(); ?>',type:'wp',data:{action_type:"update"}};	
+	events.push(ev);
+	<?php endwhile; 
+	wp_reset_postdata();
+	remove_filter( 'posts_where', 'filter_where' );?>
 
-				var formatDate = new google.visualization.DateFormat({pattern:'M/d h:mm a'});
-				formatDate.format(data, 0);
-				var chart = new google.visualization.LineChart(document.getElementById('cb_graph'));
-				chart.draw(data, {hAxis:{showTextEvery:64}});
-			}
-		);
+	function loadChartBeatWidgets(){
+		new CBDashboard('chartbeatGauge','chartbeatRefsTable','chartbeatHist',200,"<?php echo chartbeat_get_display_url(esc_attr($_SERVER['HTTP_HOST']));?>","<?php echo get_option('chartbeat_apikey')?>",events);
 	};
+	
+	var currOnload = window.onload;
+	window.onload = (typeof window.onload != 'function') ? loadChartBeatWidgets : function() { oldonload(); loadChartBeatWidgets(); };
 </script>
-<div id="cb_graph"></div>
 <?php
 } 
 
-function chartbeat_addwdigetcss() {
-}
-
 function chartbeat_add_dashboard_widgets() {
 	wp_enqueue_style(cbplugin_css);
-	wp_enqueue_script( 'charttools' );
-	wp_add_dashboard_widget('chartbeat_dashboard_widget', 'Chartbeat Dashboard Widget', 'chartbeat_dashboard_widget_function');	
+	// wp_enqueue_script( 'closure' );
+	// wp_enqueue_script( 'deps' );
+	wp_enqueue_script( 'cbdashboard' );
+	wp_add_dashboard_widget('chartbeat_dashboard_widget', 'Chartbeat', 'chartbeat_dashboard_widget_function');	
 } 
 
 function chartbeat_plugin_admin_init() {
-    wp_register_script( 'charttools','https://www.google.com/jsapi');
-    wp_register_style('cbplugin_css',plugins_url('css/cb_plugin.css', __FILE__));
+    wp_register_style('cbplugin_css',plugins_url('media/cb_plugin.css', __FILE__));
+    // wp_register_script( 'closure','http://local.chartbeat.com/chartbeat/frontend/js/closure-library-read-only/closure/goog/base.js');
+    // wp_register_script( 'deps','http://local.chartbeat.com/chartbeat/frontend/js/deps.js');
+    // wp_register_script( 'cbdashboard','http://local.chartbeat.com/chartbeat/frontend/js/cmswidgets/cbdashboard.js');
+    
+    wp_register_script( 'cbdashboard',plugins_url('media/cbdashboard.compiled.js', __FILE__));
 }
 
 add_action('wp_dashboard_setup', 'chartbeat_add_dashboard_widgets' );
 add_action( 'admin_init', 'chartbeat_plugin_admin_init' );
 
-// Add Column to Blog Manager
+// Add Column to Posts Manager
 add_filter('manage_posts_columns', 'chartbeat_columns');
 function chartbeat_columns($defaults) {
     $defaults['cb_visits'] = __('Active Vists');
@@ -394,8 +374,8 @@ function chartbeat_custom_columns($column_name, $id) {
     if( $column_name == 'cb_visits' ) {
 		$post_url = parse_url(get_permalink( $id )); ?>
 
-<script type="text/javascript" language="javascript">
-	jQuery.getJSON('http://api.chartbeat.com/live/quickstats/?host=<?php echo esc_attr($_SERVER['HTTP_HOST']); ?>&apikey=<?php echo get_option('chartbeat_apikey')?>&path=<?php echo urlencode ($post_url["path"])?>',
+<script type="text/javascript">
+	jQuery.getJSON('http://api.chartbeat.com/live/quickstats/?host=<?php echo chartbeat_get_display_url(esc_attr($_SERVER['HTTP_HOST'])); ?>&apikey=<?php echo get_option('chartbeat_apikey')?>&path=<?php echo urlencode ($post_url["path"])?>',
 		function(data) {
 			if ( !data.visits ) data.visits = 0;
 			jQuery('#post-<?php echo $id; ?> .cb_visits').append(data.visits);
@@ -415,4 +395,9 @@ if ( is_admin() ){
   add_action('wp_head', 'add_chartbeat_head');
   add_action('wp_footer', 'add_chartbeat_footer');
 }
+
+
+
+
+
 ?>
