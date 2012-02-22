@@ -23,12 +23,6 @@ Copyright 2009-2011 Chartbeat Inc.
    See the License for the specific language governing permissions and
    limitations under the License.
 */
-add_option('chartbeat_userid');
-add_option('chartbeat_apikey');
-add_option('chartbeat_widgetconfig');
-add_option('chartbeat_trackadmins'); // Add trackadmin option
-add_option('chartbeat_enable_newsbeat');
-
 
 function chartbeat_menu() {
   add_options_page('chartbeat plugin options', 'Chartbeat', 'administrator',
