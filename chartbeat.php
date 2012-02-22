@@ -142,9 +142,7 @@ In order for the widget to work, copy your API key into the space below.
 <td><input size="30" type="text" name="chartbeat_apikey" value="<?php echo get_option('chartbeat_apikey'); ?>" /></td>
 </tr></table>
 
-<input type="hidden" name="action" value="update" />
 <input type="hidden" id="chartbeat_widgetconfig" name="chartbeat_widgetconfig" value="{}" />
-<input type="hidden" name="page_options" value="chartbeat_userid,chartbeat_apikey,chartbeat_widgetconfig,chartbeat_trackadmins,chartbeat_enable_newsbeat"/>
 
 <p class="submit">
 <input type="submit" class="button-primary" value="<?php _e('Save Changes') ?>" />
