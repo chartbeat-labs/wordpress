@@ -25,7 +25,7 @@ Copyright 2009-2011 Chartbeat Inc.
 */
 
 function chartbeat_menu() {
-  add_options_page('chartbeat plugin options', 'Chartbeat', 'administrator',
+  add_options_page('chartbeat plugin options', 'Chartbeat', 'manage_options',
       'chartbeat-options', 'chartbeat_options_page');
 }
 
