@@ -233,7 +233,7 @@ class Chartbeat_Widget extends WP_Widget {
 	function widget( $args ) {
 		extract( $args );
 		echo $before_widget;
-		if ( get_option( 'chartbeat_apikey'Ê) ) : ?>
+		if ( get_option( 'chartbeat_apikey' ) ) : ?>
 			<div id="cb_top_pages"></div>
 			<script src="http://static.chartbeat.com/js/topwidgetv2.js" type="text/javascript" language="javascript"></script>
 			<script type="text/javascript" language="javascript">
