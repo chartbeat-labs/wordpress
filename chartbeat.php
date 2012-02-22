@@ -186,8 +186,7 @@ _sf_async_config.domain = '<?php echo esc_js( $_SERVER['HTTP_HOST'] ); ?>';
 // Only add these values on blog posts use the queried object in case there
 // are multiple Loops on the page.
 if (is_single()) {
-    global $wp_query;
-    $post = $wp_query->get_queried_object();
+    $post = get_queried_object();
 
     // Use the author's display name 
     $author = esc_attr(get_the_author_meta('display_name', $post->post_author)); 
