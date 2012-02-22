@@ -50,7 +50,7 @@ To enable tracking, you must enter your chartbeat user id. <a href="#" onclick="
 <br/>
 <table class="form-table">
 <tr><th scope="row">User ID</th>
-<td><input size="30" type="text" name="chartbeat_userid" value="<?php echo get_option('chartbeat_userid'); ?>" /></td>
+<td><input size="30" type="text" name="chartbeat_userid" value="<?php echo esc_attr( get_option('chartbeat_userid') ); ?>" /></td>
 </tr>
 
 <tr><th scope="row"><?php _e('Track visits by Site Admins?','chartbeat'); ?><br /><small>Administrators must be logged in to avoid tracking.</small></th>
@@ -139,7 +139,7 @@ Sample:<br><br>
 In order for the widget to work, copy your API key into the space below.
 <table class="form-table">
 <tr><th scope="row">API key</th>
-<td><input size="30" type="text" name="chartbeat_apikey" value="<?php echo get_option('chartbeat_apikey'); ?>" /></td>
+<td><input size="30" type="text" name="chartbeat_apikey" value="<?php echo esc_attr( get_option('chartbeat_apikey') ); ?>" /></td>
 </tr></table>
 
 <input type="hidden" id="chartbeat_widgetconfig" name="chartbeat_widgetconfig" value="{}" />
@@ -178,10 +178,10 @@ function add_chartbeat_footer() {
 <!-- /// LOAD CHARTBEAT /// -->
 <script type="text/javascript">
 var _sf_async_config={};
-_sf_async_config.uid = <?php print $user_id ?>;
+_sf_async_config.uid = <?php print intval( $user_id ); ?>;
 <?php $enable_newsbeat = get_option('chartbeat_enable_newsbeat');
 if ($enable_newsbeat) { ?>
-_sf_async_config.domain = '<?php echo esc_attr($_SERVER['HTTP_HOST']); ?>';
+_sf_async_config.domain = '<?php echo esc_js( $_SERVER['HTTP_HOST'] ); ?>';
 <?php 
 // Only add these values on blog posts use the queried object in case there
 // are multiple Loops on the page.
@@ -240,8 +240,8 @@ function widget_chartbeat($args) {
 <script src="http://static.chartbeat.com/js/topwidgetv2.js" type="text/javascript" language="javascript"></script> 
 <script type="text/javascript" language="javascript"> 
 var options = { };
-new CBTopPagesWidget('<?php echo get_option('chartbeat_apikey')?>',
-                     <?php echo get_option('chartbeat_widgetconfig')?>);
+new CBTopPagesWidget('<?php echo esc_js( get_option('chartbeat_apikey') ); ?>',
+                     <?php echo get_option('chartbeat_widgetconfig'); ?>);
 </script>
 <?php
   }
