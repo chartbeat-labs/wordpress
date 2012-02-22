@@ -229,27 +229,26 @@ if (is_single()) {
   }
 }
 
-function widget_chartbeat($args) {
-  extract($args);
-  echo $before_widget;
-  if (get_option('chartbeat_apikey')) {
-?>
-<div id="cb_top_pages"></div>
-
-<script src="http://static.chartbeat.com/js/topwidgetv2.js" type="text/javascript" language="javascript"></script> 
-<script type="text/javascript" language="javascript"> 
-var options = { };
-new CBTopPagesWidget('<?php echo esc_js( get_option('chartbeat_apikey') ); ?>',
-                     <?php echo get_option('chartbeat_widgetconfig'); ?>);
-</script>
-<?php
-  }
-  echo $after_widget;
+class Chartbeat_Widget extends WP_Widget {
+	function widget( $args ) {
+		extract( $args );
+		echo $before_widget;
+		if ( get_option( 'chartbeat_apikey'Ê) ) : ?>
+			<div id="cb_top_pages"></div>
+			<script src="http://static.chartbeat.com/js/topwidgetv2.js" type="text/javascript" language="javascript"></script>
+			<script type="text/javascript" language="javascript">
+			var options = { };
+			new CBTopPagesWidget( '<?php echo esc_js( get_option('chartbeat_apikey') ); ?>', <?php echo get_option('chartbeat_widgetconfig'); ?> );
+			</script>
+		<?php
+		endif;
+		echo $after_widget;
+	}
 }
 
 
 function chartbeat_widget_init() {
-  register_sidebar_widget('chartbeat Widget', 'widget_chartbeat');
+  register_widget( 'Chartbeat_Widget' );
 }
 
 add_action('widgets_init', 'chartbeat_widget_init');
