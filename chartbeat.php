@@ -189,15 +189,15 @@ if (is_single()) {
     $post = get_queried_object();
 
     // Use the author's display name 
-    $author = esc_attr(get_the_author_meta('display_name', $post->post_author)); 
-    printf("_sf_async_config.authors = '%s';\n", $author);
+    $author = get_the_author_meta('display_name', $post->post_author);
+    printf( "_sf_async_config.authors = '%s';\n", esc_js( $author ) );
 
     // Use the post's categories as sections
     $cats = get_the_terms($post->ID, 'category');
     if ($cats) {
         $cat_names = array();
         foreach ($cats as $cat) {
-            $cat_names[] = '"' . esc_attr($cat->name) . '"';
+            $cat_names[] = '"' . esc_js( $cat->name ) . '"';
         }
     }
     if ( count( $cat_names ) ) {
