@@ -40,7 +40,7 @@ function chartbeat_console() {
 			'url' => chartbeat_get_display_url( $_SERVER['HTTP_HOST'] ),
 			'k' => get_option( 'chartbeat_apikey' ),
 			'slim' => 1,
-		), 'http://chartbeat.com/dashboard/' );
+		), '//chartbeat.com/dashboard/' );
 		?>
 		<iframe width="100%" height="100%" src="<?php echo esc_url( $iframe_url ); ?>"></iframe>
 		<?php
@@ -49,7 +49,7 @@ function chartbeat_console() {
 			'url' => chartbeat_get_display_url( $_SERVER['HTTP_HOST'] ),
 			'k' => get_option( 'chartbeat_apikey' ),
 			'slim' => 1,
-		), 'http://chartbeat.com/newsbeat/dashboard/' );
+		), '//chartbeat.com/newsbeat/dashboard/' );
 		?>
 		<iframe width="100%" height="100%" src="<?php echo esc_url( $iframe_url ); ?>"></iframe>
 	<?php
@@ -68,7 +68,7 @@ function chartbeat_options_page() {
 
 			<script>
 			function showSettings() {
-				window.open('http://chartbeat.com/wordpress/?site=' + encodeURIComponent(window.location.host));
+				window.open('//chartbeat.com/wordpress/?site=' + encodeURIComponent(window.location.host));
 			}
 			</script>
 			To enable tracking, you must enter your chartbeat user id. <a href="#" onclick="showSettings()">Find yours.</a> <br />
@@ -118,7 +118,7 @@ function chartbeat_options_page() {
 			</table>
 			<br /> <br />
 
-			<script src="http://static.chartbeat.com/js/topwidgetv2.js" type="text/javascript"></script>
+			<script src="<?php echo chartbeat_get_static_asset_url( 'js/topwidgetv2.js' ); ?>" type="text/javascript"></script>
 			<script type="text/javascript"> 
 			var themes = { 'doe':   { 'bgcolor': '', 'border': '#dde7d4', 'text': '#555' },
 				'gray':  { 'bgcolor': '#e3e3e3', 'border': '#333333', 'text': '#555', 'header_bgcolor': '#999999', 'header_color': '#fff' },
@@ -315,7 +315,7 @@ class Chartbeat_Widget extends WP_Widget {
 		
 		if ( $api_key && json_decode( $widget_config ) ) : ?>
 			<div id="cb_top_pages"></div>
-			<script type="text/javascript" src="http://static.chartbeat.com/js/topwidgetv2.js"></script>
+			<script type="text/javascript" src="<?php echo chartbeat_get_static_asset_url( '/js/topwidgetv2.js' ); ?>"></script>
 			<script type="text/javascript">
 			var options = { };
 			new CBTopPagesWidget( '<?php echo esc_js( get_option('chartbeat_apikey') ); ?>', <?php echo $widget_config; ?> );
@@ -471,7 +471,7 @@ function chartbeat_custom_columns($column_name, $id) {
 			'host' => chartbeat_get_display_url( $_SERVER['HTTP_HOST'] ),
 			'apikey' => get_option('chartbeat_apikey'),
 			'path' => urlencode( $post_url["path"] ),
-		), 'http://api.chartbeat.com/live/quickstats/' );
+		), '//api.chartbeat.com/live/quickstats/' );
 		?>
 	
 		<script type="text/javascript">
@@ -484,6 +484,12 @@ function chartbeat_custom_columns($column_name, $id) {
 		</script>
 		<?php
 	}
+}
+
+// Returns URL for asset on the static.chartbeat domain
+function chartbeat_get_static_asset_url( $path = '' ) {
+	$domain = is_ssl() ? 'https://s3.amazonaws.com/static.chartbeat.com/' : 'http://static.chartbeat.com/';
+	return $domain . ltrim( $path, '/' );
 }
 
 // If admin register settings on page that have been saved
