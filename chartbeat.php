@@ -428,6 +428,7 @@ function chartbeat_dashboard_widget_function() {
 
 // Create a new filtering function that will add our where clause to the query
 function chartbeat_filter_where_last_three_days( $where = '' ) {
+	global $wpdb;
 	$where .= $wpdb->prepare( " AND $wpdb->posts.post_modified > %s", date( 'Y-m-d', strtotime( '-3 days' ) ) );
 	return $where;
 }
