@@ -391,12 +391,8 @@ function chartbeat_dashboard_widget_function() {
 </div>
 <script type="text/javascript">
 <?php
-// Create a new filtering function that will add our where clause to the query
-function filter_where( $where = '' ) {
-	$where .= " AND post_modified > '" . date('Y-m-d', strtotime('-3 days')) . "'";
-	return $where;
-}
-add_filter( 'posts_where', 'filter_where' );
+
+add_filter( 'posts_where', 'chartbeat_filter_where_last_three_days' );
 ?>
 	var events = []
 	// Get published post Events 
@@ -431,7 +427,7 @@ add_filter( 'posts_where', 'filter_where' );
 	events.push(ev);
 	<?php endwhile; 
 	wp_reset_postdata();
-	remove_filter( 'posts_where', 'filter_where' );?>
+	remove_filter( 'posts_where', 'chartbeat_filter_where_last_three_days' );?>
 
 	function loadChartBeatWidgets(){
 		new CBDashboard('chartbeatGauge','chartbeatRefsTable','chartbeatHist',200,"<?php echo esc_js( chartbeat_get_display_url( $_SERVER['HTTP_HOST'] ) ); ?>","<?php echo esc_js( get_option('chartbeat_apikey') ); ?>",events);
@@ -440,10 +436,12 @@ add_filter( 'posts_where', 'filter_where' );
 	var currOnload = window.onload;
 	window.onload = (typeof window.onload != 'function') ? loadChartBeatWidgets : function() { oldonload(); loadChartBeatWidgets(); };
 </script>
-
-
-
 <?php
+}
+// Create a new filtering function that will add our where clause to the query
+function chartbeat_filter_where_last_three_days( $where = '' ) {
+	$where .= " AND post_modified > '" . date('Y-m-d', strtotime('-3 days')) . "'";
+	return $where;
 }
 
 function chartbeat_add_dashboard_widgets() {
