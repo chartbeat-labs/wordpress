@@ -334,12 +334,14 @@ class Chartbeat_Widget extends WP_Widget {
 	function widget( $args ) {
 		extract( $args );
 		echo $before_widget;
-		if ( get_option( 'chartbeat_apikey' ) ) : ?>
+		$api_key = get_option( 'chartbeat_apikey' );
+		$widget_config = get_option('chartbeat_widgetconfig');
+		if ( $api_key && json_decode( $widget_config ) ) : ?>
 <div id="cb_top_pages"></div>
 <script type="text/javascript" src="http://static.chartbeat.com/js/topwidgetv2.js"></script>
 <script type="text/javascript">
 		var options = { };
-		new CBTopPagesWidget( '<?php echo esc_js( get_option('chartbeat_apikey') ); ?>', <?php echo get_option('chartbeat_widgetconfig'); ?> );
+		new CBTopPagesWidget( '<?php echo esc_js( get_option('chartbeat_apikey') ); ?>', <?php echo $widget_config; ?> );
 		</script>
 		<?php
 		endif;
