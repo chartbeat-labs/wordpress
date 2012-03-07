@@ -440,7 +440,7 @@ add_filter( 'posts_where', 'chartbeat_filter_where_last_three_days' );
 }
 // Create a new filtering function that will add our where clause to the query
 function chartbeat_filter_where_last_three_days( $where = '' ) {
-	$where .= " AND post_modified > '" . date('Y-m-d', strtotime('-3 days')) . "'";
+	$where .= $wpdb->prepare( " AND $wpdb->posts.post_modified > %s", date( 'Y-m-d 00:00:00', strtotime( '-3 days' ) ) );
 	return $where;
 }
 
