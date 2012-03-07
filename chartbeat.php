@@ -56,8 +56,6 @@ function chartbeat_console() {
 	}
 }
 
-
-
 function chartbeat_options_page() {
 	?>
 	<div class="wrap">
@@ -212,12 +210,6 @@ function chartbeat_options_page() {
 
 // Function to register settings and sanitize output. To be called later in add_action
 function chartbeat_register_settings() {
-	add_option('chartbeat_userid');
-	add_option('chartbeat_apikey');
-	add_option('chartbeat_widgetconfig');
-	add_option('chartbeat_trackadmins'); // Add trackadmin option
-	add_option('chartbeat_enable_newsbeat');
-
 	register_setting('chartbeat-options','chartbeat_userid', 'intval');
 	register_setting('chartbeat-options','chartbeat_apikey','chartbeat_is_validmd5');
 	register_setting('chartbeat-options','chartbeat_widgetconfig','chartbeat_is_validjson');
