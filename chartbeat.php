@@ -407,7 +407,7 @@ add_filter( 'posts_where', 'chartbeat_filter_where_last_three_days' );
 	if($category[0]){ $category_link = get_category_link($category[0]->cat_ID ); }
 	?>var ev = {domain:'<?php echo esc_js( chartbeat_get_display_url( $_SERVER['HTTP_HOST'] ) );?>',title:'<?php echo esc_js( get_the_title() ); ?>',
 	  	value:'<?php echo esc_js( chartbeat_get_display_url( $category_link ) ); ?>', group_name:'<?php echo esc_js( chartbeat_get_display_url( get_page_link() ) ); ?>',
-	  	t: new Date(<?php echo the_time('Y,n-1,j,G,i'); ?>).getTime()/1000,group_type:'page',num_referrers:10,id:'<?php echo the_ID(); ?>',type:'wp',data:{action_type:"create"}};
+	  	t: new Date(<?php echo the_time('Y,n-1,j,G,i'); ?>).getTime()/1000,group_type:'page',num_referrers:10,id:'<?php echo esc_js( get_the_ID() ); ?>',type:'wp',data:{action_type:"create"}};
 	events.push(ev);
 	<?php endwhile; 
 	wp_reset_postdata();?>
@@ -440,7 +440,7 @@ add_filter( 'posts_where', 'chartbeat_filter_where_last_three_days' );
 }
 // Create a new filtering function that will add our where clause to the query
 function chartbeat_filter_where_last_three_days( $where = '' ) {
-	$where .= $wpdb->prepare( " AND $wpdb->posts.post_modified > %s", date( 'Y-m-d 00:00:00', strtotime( '-3 days' ) ) );
+	$where .= $wpdb->prepare( " AND $wpdb->posts.post_modified > %s", date( 'Y-m-d', strtotime( '-3 days' ) ) );
 	return $where;
 }
 
