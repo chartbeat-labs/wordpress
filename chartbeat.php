@@ -28,7 +28,7 @@ function chartbeat_menu() {
 	add_options_page('chartbeat plugin options', 'Chartbeat', 'manage_options', 'chartbeat-options', 'chartbeat_options_page');
 	add_menu_page( 'Chartbeat Console', 'Chartbeat', 'edit_posts', chartbeat_console, chartbeat_console, plugins_url('media/chartbeat.png', __FILE__) );
 }
-
+add_action('admin_menu', 'chartbeat_menu');
 
 function chartbeat_console() {
 	if (!current_user_can('edit_posts'))  {
@@ -356,7 +356,6 @@ function chartbeat_widget_init() {
 }
 
 add_action('widgets_init', 'chartbeat_widget_init');
-add_action('admin_menu', 'chartbeat_menu');
 
 function chartbeat_get_display_url( $url ){
 	return preg_replace("/(https?:\/\/)?(www\.)?/i","",$url);
