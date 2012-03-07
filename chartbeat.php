@@ -150,7 +150,7 @@ function changeLimit(select) {
 
 function renderWidget() {
   new CBTopPagesWidget( '<?php echo esc_js(get_option('chartbeat_apikey')) ?>',
-                       { 'host': '<?php echo chartbeat_get_display_url(esc_js($_SERVER['HTTP_HOST']));?>',
+                       { 'host': '<?php echo esc_js( chartbeat_get_display_url( $_SERVER['HTTP_HOST'] ) ); ?>',
                          'background': themes[theme]['bgcolor'],
                          'border': themes[theme]['border'],
                          'header_bgcolor': themes[theme]['header_bgcolor'],
@@ -408,8 +408,8 @@ add_filter( 'posts_where', 'filter_where' );
 	$tstamps[$tstamp] = true;
 	$category = get_the_category();
 	if($category[0]){ $category_link = get_category_link($category[0]->cat_ID ); }
-	?>var ev = {domain:'<?php echo chartbeat_get_display_url(esc_js($_SERVER['HTTP_HOST']));?>',title:'<?php echo the_title(); ?>',
-	  	value:'<?php echo chartbeat_get_display_url($category_link); ?>',group_name:'<?php echo chartbeat_get_display_url(get_page_link()); ?>',
+	?>var ev = {domain:'<?php echo esc_js( chartbeat_get_display_url( $_SERVER['HTTP_HOST'] ) );?>',title:'<?php echo esc_js( get_the_title() ); ?>',
+	  	value:'<?php echo esc_js( chartbeat_get_display_url( $category_link ) ); ?>', group_name:'<?php echo esc_js( chartbeat_get_display_url( get_page_link() ) ); ?>',
 	  	t: new Date(<?php echo the_time('Y,n-1,j,G,i'); ?>).getTime()/1000,group_type:'page',num_referrers:10,id:'<?php echo the_ID(); ?>',type:'wp',data:{action_type:"create"}};
 	events.push(ev);
 	<?php endwhile; 
@@ -418,22 +418,22 @@ add_filter( 'posts_where', 'filter_where' );
 	<?php
 	$args = array('post_type'=>array('revision'),'post_status'=>'inherit','orderby' => 'date', 'order' => 'ASC' );
 	$the_query = new WP_Query( $args );
-	while( $the_query->have_posts() ): $the_query->the_post();  
+	while( $the_query->have_posts() ): $the_query->the_post();
 	$tstamp = get_the_time('Y,n-1,j,G,i');
 	if ($tstamps[$tstamp]) continue; 
 	$tstamps[$tstamp] = true;
 	$category = get_the_category();
 	if($category[0]){ $category_link = get_category_link($category[0]->cat_ID ); }
-	?>var ev = {domain:'<?php echo chartbeat_get_display_url(esc_js($_SERVER['HTTP_HOST']));?>',title:'<?php echo the_title(); ?>',
-	  	value:'<?php echo chartbeat_get_display_url($category_link); ?>',group_name:'<?php echo chartbeat_get_display_url(get_page_link()); ?>',
-	  	t: new Date(<?php echo the_time('Y,n-1,j,G,i'); ?>).getTime()/1000,group_type:'page',num_referrers:10,id:'<?php echo the_ID(); ?>',type:'wp',data:{action_type:"update"}};	
+	?>var ev = {domain:'<?php echo esc_js( chartbeat_get_display_url( $_SERVER['HTTP_HOST'] ) ); ?>',title:'<?php echo esc_js( get_the_title() ); ?>',
+	  	value:'<?php echo esc_js( chartbeat_get_display_url( $category_link ) ); ?>',group_name:'<?php echo esc_js( chartbeat_get_display_url( get_page_link() ) ); ?>',
+	  	t: new Date(<?php echo the_time('Y,n-1,j,G,i'); ?>).getTime()/1000,group_type:'page',num_referrers:10,id:'<?php echo esc_js( get_the_ID() ); ?>',type:'wp',data:{action_type:"update"}};
 	events.push(ev);
 	<?php endwhile; 
 	wp_reset_postdata();
 	remove_filter( 'posts_where', 'filter_where' );?>
 
 	function loadChartBeatWidgets(){
-		new CBDashboard('chartbeatGauge','chartbeatRefsTable','chartbeatHist',200,"<?php echo chartbeat_get_display_url(esc_js($_SERVER['HTTP_HOST']));?>","<?php echo get_option('chartbeat_apikey')?>",events);
+		new CBDashboard('chartbeatGauge','chartbeatRefsTable','chartbeatHist',200,"<?php echo esc_js( chartbeat_get_display_url( $_SERVER['HTTP_HOST'] ) ); ?>","<?php echo esc_js( get_option('chartbeat_apikey') ); ?>",events);
 	};
 	
 	var currOnload = window.onload;
@@ -474,10 +474,16 @@ function chartbeat_columns($defaults) {
 add_action('manage_posts_custom_column', 'chartbeat_custom_columns', 10, 2);
 function chartbeat_custom_columns($column_name, $id) {
 	if( $column_name == 'cb_visits' ) {
-		$post_url = parse_url(get_permalink( $id )); ?>
+		$post_url = parse_url(get_permalink( $id ));
+		$json_url = add_query_arg( array(
+			'host' => chartbeat_get_display_url( $_SERVER['HTTP_HOST'] ),
+			'apikey' => get_option('chartbeat_apikey'),
+			'path' => urlencode( $post_url["path"] ),
+		), 'http://api.chartbeat.com/live/quickstats/' );
+		?>
 
 <script type="text/javascript">
-	jQuery.getJSON('http://api.chartbeat.com/live/quickstats/?host=<?php echo chartbeat_get_display_url(esc_url($_SERVER['HTTP_HOST'])); ?>&apikey=<?php echo get_option('chartbeat_apikey')?>&path=<?php echo urlencode ($post_url["path"])?>',
+	jQuery.getJSON('<?php echo esc_js( $json_url ); ?>',
 		function(data) {
 			if ( !data.visits ) data.visits = 0;
 			jQuery('#post-<?php echo $id; ?> .cb_visits').append(data.visits);
