@@ -434,7 +434,11 @@ function chartbeat_filter_where_last_three_days( $where = '' ) {
 }
 
 function chartbeat_add_dashboard_widgets() {
-	wp_enqueue_style(cbplugin_css);
+	// Don't add widgets if we haven't set up Chartbeat yet
+	if ( ! get_option('chartbeat_userid') )
+		return;
+
+	wp_enqueue_style( 'cbplugin_css' );
 	// wp_enqueue_script( 'closure' );
 	// wp_enqueue_script( 'deps' );
 	wp_enqueue_script( 'cbdashboard' );
