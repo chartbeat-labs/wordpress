@@ -1,4 +1,4 @@
-=== Plugin Name ===
+=== Chartbeat ===
 Contributors: chartbeat
 Tags: chartbeat, analytics
 Requires at least: 2.8
