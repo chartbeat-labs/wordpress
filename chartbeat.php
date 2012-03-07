@@ -227,13 +227,13 @@ function chartbeat_register_settings() {
 	add_option('chartbeat_enable_newsbeat');
 
 	register_setting('chartbeat-options','chartbeat_userid', 'intval');
-	register_setting('chartbeat-options','chartbeat_apikey','is_validmd5');
-	register_setting('chartbeat-options','chartbeat_widgetconfig','is_validjson');
+	register_setting('chartbeat-options','chartbeat_apikey','chartbeat_is_validmd5');
+	register_setting('chartbeat-options','chartbeat_widgetconfig','chartbeat_is_validjson');
 	register_setting('chartbeat-options','chartbeat_trackadmins','intval'); // add trackadmin setting
 	register_setting('chartbeat-options','chartbeat_enable_newsbeat','intval');
 }
 
-function is_validmd5($md5) {
+function chartbeat_is_validmd5($md5) {
 	if( !empty($md5) && preg_match('/^[a-f0-9]{32}$/', $md5) ) { 
 		return $md5;
 	} else {
@@ -242,7 +242,7 @@ function is_validmd5($md5) {
 	}
 }
 
-function is_validjson($json_str) {
+function chartbeat_is_validjson($json_str) {
 	if( is_null(json_decode($json_str)) ) { 
 		return $json_str; 
 	} else {
