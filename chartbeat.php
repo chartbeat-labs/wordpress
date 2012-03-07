@@ -460,6 +460,9 @@ add_action( 'admin_init', 'chartbeat_plugin_admin_init' );
 // Add Column to Posts Manager
 add_filter('manage_posts_columns', 'chartbeat_columns');
 function chartbeat_columns($defaults) {
+	if ( ! get_option('chartbeat_userid') )
+		return $defaults;
+
 	$defaults['cb_visits'] = __('Active Vists');
 	return $defaults;
 }
