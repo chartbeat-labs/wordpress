@@ -249,65 +249,63 @@ function add_chartbeat_head() {
 function add_chartbeat_footer() {
 	$user_id = get_option('chartbeat_userid');
 	if ($user_id) {
-		if (current_user_can('manage_options') && get_option('chartbeat_trackadmins') == 0) {
-			// if visitor is admin AND tracking is off
-			// do not load chartbeat
-		} else {
-			// load chartbeat js ?>
+		// if visitor is admin AND tracking is off, do not load chartbeat
+		if ( current_user_can( 'manage_options') && get_option('chartbeat_trackadmins') == 0)
+			return;
+		?>
 
-			<!-- /// LOAD CHARTBEAT /// -->
-			<script type="text/javascript">
-			var _sf_async_config={};
-			_sf_async_config.uid = <?php print intval( $user_id ); ?>;
-			<?php $enable_newsbeat = get_option('chartbeat_enable_newsbeat');
-			if ($enable_newsbeat) { ?>
-				_sf_async_config.domain = '<?php echo esc_js($_SERVER['HTTP_HOST']); ?>';
-				<?php 
-				// Only add these values on blog posts use the queried object in case there
-				// are multiple Loops on the page.
-				if (is_single()) {
-					$post = get_queried_object();
+		<!-- /// LOAD CHARTBEAT /// -->
+		<script type="text/javascript">
+		var _sf_async_config={};
+		_sf_async_config.uid = <?php print intval( $user_id ); ?>;
+		<?php $enable_newsbeat = get_option('chartbeat_enable_newsbeat');
+		if ($enable_newsbeat) { ?>
+			_sf_async_config.domain = '<?php echo esc_js($_SERVER['HTTP_HOST']); ?>';
+			<?php 
+			// Only add these values on blog posts use the queried object in case there
+			// are multiple Loops on the page.
+			if (is_single()) {
+				$post = get_queried_object();
 
-					// Use the author's display name 
-					$author = get_the_author_meta('display_name', $post->post_author);
-					printf( "_sf_async_config.authors = '%s';\n", esc_js( $author ) );
-				
-					// Use the post's categories as sections
-					$cats = get_the_terms($post->ID, 'category');
+				// Use the author's display name 
+				$author = get_the_author_meta('display_name', $post->post_author);
+				printf( "_sf_async_config.authors = '%s';\n", esc_js( $author ) );
+			
+				// Use the post's categories as sections
+				$cats = get_the_terms($post->ID, 'category');
 
-					if ($cats) {
-						$cat_names = array();
-						foreach ($cats as $cat) {
-							$cat_names[] = '"' . esc_js($cat->name) . '"';
-							$cat_names[] = '"' . esc_js( $cat->name ) . '"';
-						}
-					}
-
-					if ( count( $cat_names ) ) {
-						printf("_sf_async_config.sections = [%s];\n", implode(', ', $cat_names));
+				if ($cats) {
+					$cat_names = array();
+					foreach ($cats as $cat) {
+						$cat_names[] = '"' . esc_js($cat->name) . '"';
+						$cat_names[] = '"' . esc_js( $cat->name ) . '"';
 					}
 				}
-			} // if $enable_newsbeat
-			?>
 
-			(function(){
-			  function loadChartbeat() {
-				window._sf_endpt=(new Date()).getTime();
-				var e = document.createElement('script');
-				e.setAttribute('language', 'javascript');
-				e.setAttribute('type', 'text/javascript');
-				e.setAttribute('src',
-				   (("https:" == document.location.protocol) ? "https://s3.amazonaws.com/" : "http://") +
-				   "static.chartbeat.com/js/chartbeat.js");
-				document.body.appendChild(e);
-			  }
-			  var oldonload = window.onload;
-			  window.onload = (typeof window.onload != 'function') ?
-				 loadChartbeat : function() { oldonload(); loadChartbeat(); };
-			})();
-			</script>
-			<?php
-		}
+				if ( count( $cat_names ) ) {
+					printf("_sf_async_config.sections = [%s];\n", implode(', ', $cat_names));
+				}
+			}
+		} // if $enable_newsbeat
+		?>
+
+		(function(){
+		  function loadChartbeat() {
+			window._sf_endpt=(new Date()).getTime();
+			var e = document.createElement('script');
+			e.setAttribute('language', 'javascript');
+			e.setAttribute('type', 'text/javascript');
+			e.setAttribute('src',
+			   (("https:" == document.location.protocol) ? "https://s3.amazonaws.com/" : "http://") +
+			   "static.chartbeat.com/js/chartbeat.js");
+			document.body.appendChild(e);
+		  }
+		  var oldonload = window.onload;
+		  window.onload = (typeof window.onload != 'function') ?
+			 loadChartbeat : function() { oldonload(); loadChartbeat(); };
+		})();
+		</script>
+		<?php
 	}
 }
 
