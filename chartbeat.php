@@ -320,6 +320,12 @@ class Chartbeat_Widget extends WP_Widget {
 	function __construct()
     {
         parent::__construct('chartbeat_widget', 'Chartbeat Widget',array( 'description' => __('Display your site\'s top pages')));
+        
+        if ( is_active_widget(false,false,$this->id_base,true) ) {
+        	wp_enqueue_script( 'chartbeat_topwidget', plugins_url('media/topwidget.compiled.js', __FILE__) );
+        	wp_localize_script( 'chartbeat_topwidget', 'cbproxy', array( 'ajaxurl' => admin_url( 'admin-ajax.php' ),
+        		'cbnonce' => wp_create_nonce( 'cbproxy-nonce' ) ) );
+        }
     }
 	
 	function widget( $args ) {
@@ -327,10 +333,9 @@ class Chartbeat_Widget extends WP_Widget {
 		echo $before_widget;
 		if ( get_option( 'chartbeat_apikey' ) ) : ?>
 <div id="cb_top_pages"></div>
-<script type="text/javascript" src="http://static.chartbeat.com/js/topwidgetv2.js"></script>
 <script type="text/javascript">
 		var options = { };
-		new CBTopPagesWidget( '<?php echo esc_js( get_option('chartbeat_apikey') ); ?>', <?php echo get_option('chartbeat_widgetconfig'); ?> );
+		new CBTopPagesWidget( <?php echo get_option('chartbeat_widgetconfig'); ?> );
 		</script>
 		<?php
 		endif;
@@ -338,6 +343,34 @@ class Chartbeat_Widget extends WP_Widget {
 	}
 }
 
+// Add proxy for Chartbeat API requests
+add_action( 'wp_ajax_nopriv_cbproxy-submit', 'cbproxy_submit' );
+add_action( 'wp_ajax_cbproxy-submit', 'cbproxy_submit' );
+
+function cbproxy_submit() {
+	// check nonce
+	$nonce = $_GET['cbnonce'];
+	if ( ! wp_verify_nonce( $nonce, 'cbproxy-nonce' ) ) die ( 'cbproxy-nonce failed!');
+	
+	$url = 'http://api.chartbeat.com';
+	$url .= $_GET['url'];
+	$url .= '&host=' . chartbeat_get_display_url(esc_js($_SERVER['HTTP_HOST'])) .'&apikey=' . get_option('chartbeat_apikey');
+	$transient = 'cbproxy_' . md5($url);
+	header( 'Content-Type: application/json' );
+	$response = get_transient( $transient );
+	if ( !$response ) {
+		$get = wp_remote_get( $url , array( 'timeout' => 3 ) );
+		if( is_wp_error( $response ) ) {
+			$response = json_encode( array( 'error' => $get->get_error_message() ) );
+		} else {
+			$response = wp_remote_retrieve_body($get);
+		}
+		set_transient($transient,$response,5);
+	}
+	
+	echo $response;
+	exit;
+}
 
 // Dashboard Widget
 function chartbeat_widget_init() {
