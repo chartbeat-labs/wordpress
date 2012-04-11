@@ -1,4 +1,4 @@
-=== Plugin Name ===
+=== Chartbeat ===
 Contributors: chartbeat
 Tags: chartbeat, analytics
 Requires at least: 2.8
@@ -22,10 +22,14 @@ on their site using data from chartbeat.
 == Installation ==
 
 1. Upload `chartbeat.php` to the `/wp-content/plugins/` directory
-1. Activate the plugin through the 'Plugins' menu in WordPress
-1. Under Settings > Chartbeat, add your User ID
-1. You may also add your API key and configure the widget
-1. If you want to use the widget, drag it into your sidebar under Appearance > Widgets
+2. Activate the plugin through the 'Plugins' menu in WordPress
+3. Under Settings > Chartbeat, add your User ID
+4. You may also add your API key and configure the widget (API key must have "all" persmissions).
+5. Select Newsbeat if you're using it
+6. If you want to use the widget, drag it into your sidebar under Appearance > Widgets
+
+*Note that you must have your timezone set correctly for events to work properly in
+the historical chart.
 
 == Frequently Asked Questions ==
 
@@ -42,6 +46,8 @@ This plugin makes it easy for chartbeat users to install the code they
 need to add to their site that enables chartbeat to track what's
 happening. Adding this plugin to your site if you do not have a
 chartbeat account will not provide you with any analytics.
+
+It also
 
 = Will this plugin slow down my site? =
 
@@ -69,3 +75,6 @@ richer sense of how people are using your site.
 
 = 1.3 =
 * 'trackadmin' option added by Jesse S. McDougall, jesse@catalystwebworks.com
+
+= 2.0 =
+* Added Dashboard Widget, Active Visits in Post Board and Embedded Console
