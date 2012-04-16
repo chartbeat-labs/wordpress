@@ -1,5 +1,5 @@
 === Plugin Name ===
-Contributors: chartbeat
+Contributors: chartbeat, automattic
 Tags: chartbeat, analytics
 Requires at least: 2.8
 Tested up to: 2.9.2
