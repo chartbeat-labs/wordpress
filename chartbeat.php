@@ -230,6 +230,17 @@ if (is_single()) {
 }
 
 class Chartbeat_Widget extends WP_Widget {
+
+        function __construct() {
+        parent::__construct('chartbeat_widget', 'Chartbeat Widget',array( 'description' => __('Display your site\'s top pages')));
+        
+        if ( is_active_widget(false,false,$this->id_base,true) ) {
+               wp_enqueue_script( 'chartbeat_topwidget', plugins_url('media/topwidget.compiled.js', __FILE__) );
+               wp_localize_script( 'chartbeat_topwidget', 'cbproxy', array( 'ajaxurl' => admin_url( 'admin-ajax.php' ),
+                       'cbnonce' => wp_create_nonce( 'cbproxy-nonce' ) ) );
+        }
+        }
+
 	function widget( $args ) {
 		extract( $args );
 		echo $before_widget;

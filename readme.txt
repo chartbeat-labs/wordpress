@@ -3,7 +3,7 @@ Contributors: chartbeat, automattic
 Tags: chartbeat, analytics
 Requires at least: 2.8
 Tested up to: 2.9.2
-Stable tag: 1.4
+Stable tag: 1.4.1
 
 Automatically adds pinging code for chartbeat real-time analytics service and provides top pages widget.
 
@@ -72,3 +72,6 @@ richer sense of how people are using your site.
 
 = 1.4 =
 * Security enhancements from automatic *
+
+= 1.4.1 = 
+* Fix widget error in logs *
