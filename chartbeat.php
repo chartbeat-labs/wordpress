@@ -240,7 +240,6 @@ function add_chartbeat_head() {
 
 function add_chartbeat_footer() {
 	$user_id = get_option('chartbeat_userid');
-	$domain = apply_filters( 'chartbeat_config_domain', $_SERVER['HTTP_HOST'] );
 	if ($user_id) {
 		// if visitor is admin AND tracking is off, do not load chartbeat
 		if ( current_user_can( 'manage_options') && get_option('chartbeat_trackadmins') == 0)
@@ -253,6 +252,7 @@ function add_chartbeat_footer() {
 		_sf_async_config.uid = <?php print intval( $user_id ); ?>;
 		<?php $enable_newsbeat = get_option('chartbeat_enable_newsbeat');
 		if ($enable_newsbeat) { ?>
+			$domain = apply_filters( 'chartbeat_config_domain', $_SERVER['HTTP_HOST'] );
 			_sf_async_config.domain = '<?php echo esc_js( $domain ); ?>';
 			<?php 
 			// Only add these values on blog posts use the queried object in case there
@@ -262,6 +262,7 @@ function add_chartbeat_footer() {
 
 				// Use the author's display name 
 				$author = get_the_author_meta('display_name', $post->post_author);
+				$author = apply_filters( 'chartbeat_config_author', $author );
 				printf( "_sf_async_config.authors = '%s';\n", esc_js( $author ) );
 			
 				// Use the post's categories as sections
@@ -275,6 +276,7 @@ function add_chartbeat_footer() {
 					}
 				}
 
+				$author = apply_filters( 'chartbeat_config_sections', $cat_names );
 				if ( count( $cat_names ) ) {
 					printf("_sf_async_config.sections = [%s];\n", implode(', ', $cat_names));
 				}
