@@ -26,7 +26,7 @@ limitations under the License.
 
 function chartbeat_menu() {
 	add_options_page('chartbeat plugin options', 'Chartbeat', 'manage_options', 'chartbeat-options', 'chartbeat_options_page');
-	add_menu_page( 'Chartbeat Console', 'Chartbeat', 'edit_posts', chartbeat_console, chartbeat_console, plugins_url('media/chartbeat.png', __FILE__) );
+	add_menu_page( 'Chartbeat Console', 'Chartbeat', 'edit_posts', 'chartbeat_console', 'chartbeat_console', plugins_url('media/chartbeat.png', __FILE__) );
 }
 add_action('admin_menu', 'chartbeat_menu');
 
@@ -245,13 +245,20 @@ function add_chartbeat_footer() {
 		// if visitor is admin AND tracking is off, do not load chartbeat
 		if ( current_user_can( 'manage_options') && get_option('chartbeat_trackadmins') == 0)
 			return;
+
+		if ( apply_filters( 'chartbeat_config_use_canonical', true ) )
+			$use_canonical = 'true';
+		else
+			$use_canonical = 'false';
 		?>
 
 		<!-- /// LOAD CHARTBEAT /// -->
 		<script type="text/javascript">
 		var _sf_async_config={};
-		_sf_async_config.uid = <?php print intval( $user_id ); ?>;
-		<?php $enable_newsbeat = get_option('chartbeat_enable_newsbeat');
+		_sf_async_config.uid = <?php echo intval( $user_id ); ?>;
+		_sf_async_config.useCanonical = <?php echo $use_canonical; ?>;
+		<?php
+		$enable_newsbeat = get_option('chartbeat_enable_newsbeat');
 		$domain = apply_filters( 'chartbeat_config_domain', chartbeat_get_display_url (get_option('home')) );
 		if ($enable_newsbeat) { ?>
 			_sf_async_config.domain = '<?php echo esc_js( $domain ); ?>';
@@ -271,15 +278,18 @@ function add_chartbeat_footer() {
 
 				if ($cats) {
 					$cat_names = array();
-					foreach ($cats as $cat) {
-						$cat_names[] = '"' . esc_js($cat->name) . '"';
-						$cat_names[] = '"' . esc_js( $cat->name ) . '"';
+					foreach ( $cats as $cat ) {
+						$cat_names[] = $cat->name;
 					}
 				}
 
-				$author = apply_filters( 'chartbeat_config_sections', $cat_names );
+				$cat_names = (array)apply_filters( 'chartbeat_config_sections', $cat_names );
 				if ( count( $cat_names ) ) {
-					printf("_sf_async_config.sections = [%s];\n", implode(', ', $cat_names));
+					foreach( $cat_names as $index => $name ) {
+						$cat_names[ $index ] = '"' . esc_js( $name ) . '"';
+					}
+					
+					printf( "_sf_async_config.sections = [%s];\n", implode( ', ', $cat_names ) );
 				}
 			}
 		} // if $enable_newsbeat
@@ -506,8 +516,9 @@ function chartbeat_columns($defaults) {
 	return $defaults;
 }
 add_action('manage_posts_custom_column', 'chartbeat_custom_columns', 10, 2);
-$domain = apply_filters( 'chartbeat_config_domain', chartbeat_get_display_url (get_option('home')) );
+
 function chartbeat_custom_columns($column_name, $id) {
+	$domain = apply_filters( 'chartbeat_config_domain', chartbeat_get_display_url (get_option('home')) );
 	if( $column_name == 'cb_visits' ) {
 		$post_url = parse_url(get_permalink( $id ));
 		$json_url = add_query_arg( array(
