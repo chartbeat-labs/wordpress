@@ -1,15 +1,15 @@
 <?php
-/**
- * Plugin Name: Chartbeat
- * Plugin URI: http://chartbeat.com/wordpress/
- * Description: Adds Chartbeat pinging to Wordpress.
- * Version: 1.3
- * Author: Chartbeat
- * Author URI: http://chartbeat.com/
- */
+/*
+Plugin Name: Chartbeat
+Plugin URI: http://chartbeat.com/wordpress/
+Description: Adds Chartbeat pinging to Wordpress.
+Version: 2.0
+Author: Chartbeat
+Author URI: http://chartbeat.com/
+*/
 
 /*
- Copyright 2009-2011 Chartbeat Inc.
+Copyright 2009-2013 Chartbeat Inc.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
