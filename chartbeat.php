@@ -302,7 +302,7 @@ function add_chartbeat_footer() {
 			e.setAttribute('language', 'javascript');
 			e.setAttribute('type', 'text/javascript');
 			e.setAttribute('src',
-			   (("https:" == document.location.protocol) ? "https://s3.amazonaws.com/" : "http://") +
+			   (("https:" == document.location.protocol) ? "https://" : "http://") +
 			   "static.chartbeat.com/js/chartbeat.js");
 			document.body.appendChild(e);
 		  }
