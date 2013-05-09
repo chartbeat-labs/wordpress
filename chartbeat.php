@@ -60,7 +60,7 @@ function chartbeat_options_page() {
 	$domain = apply_filters( 'chartbeat_config_domain', chartbeat_get_display_url (get_option('home')) );
 	?>
 	<div class="wrap">
-		<h2>chartbeat</h2>
+		<h2>Chartbeat</h2>
 		<form method="post" action="options.php" onsubmit="buildOptions()">
 			<?php
 			// outputs all of the hidden fields that options.php will check, including the nonce
@@ -72,10 +72,10 @@ function chartbeat_options_page() {
 				window.open('//chartbeat.com/wordpress/?site=' + encodeURIComponent(window.location.host));
 			}
 			</script>
-			To enable tracking, you must enter your chartbeat user id. <a href="#" onclick="showSettings()">Find yours.</a> <br />
+			To enable tracking, you must enter your chartbeat account id. <a href="#" onclick="showSettings()">Find yours.</a> <br />
 			<table class="form-table">
 				<tr>
-					<th scope="row">User ID</th>
+					<th scope="row">Account ID</th>
 					<td><input size="30" type="text" name="chartbeat_userid"
 						value="<?php echo esc_attr( get_option('chartbeat_userid') ); ?>" />
 					</td>
@@ -94,8 +94,8 @@ function chartbeat_options_page() {
 				</tr>
 	
 				<tr>
-					<th scope="row"><?php _e('Enable newsbeat?','chartbeat'); ?><br /> <small>Sign
-							up for <a href="http://chartbeat.com/newsbeat/">newsbeat</a>.
+					<th scope="row"><?php _e('Enable Chartbeat Publishing?','chartbeat'); ?><br /> <small>Sign
+							up for <a href="http://chartbeat.com/publishing/">Chartbeat Publishing</a>.
 					</small></th>
 					<td>
 						<input type="radio" name="chartbeat_enable_newsbeat" value="1" <?php checked( get_option('chartbeat_enable_newsbeat'), 1 ); ?> />
