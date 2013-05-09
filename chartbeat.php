@@ -542,7 +542,7 @@ function chartbeat_custom_columns($column_name, $id) {
 
 // Returns URL for asset on the static.chartbeat domain
 function chartbeat_get_static_asset_url( $path = '' ) {
-	$domain = is_ssl() ? 'https://s3.amazonaws.com/static.chartbeat.com/' : 'http://static.chartbeat.com/';
+	$domain = (is_ssl() ? 'https' : 'http') . '://static.chartbeat.com/';
 	return $domain . ltrim( $path, '/' );
 }
 
