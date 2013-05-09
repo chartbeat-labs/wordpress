@@ -1,6 +1,6 @@
-=== Chartbeat real-time traffic & engagement data ===
-Contributors: chartbeat, automattic
-Tags: Chartbeat, Analytics, Data, Real-time, Publishing, Website Data
+=== Chartbeat ===
+Contributors: chartbeat
+Tags: chartbeat, analytics
 Requires at least: 2.8
 Tested up to: 3.4.2
 Stable tag: 1.4.1
@@ -13,13 +13,15 @@ The Chartbeat plugin automatically adds real-time data and a top pages widget to
 
 == Installation ==
 
-1. Sign up for Chartbeat
-1. Upload ‘chartbeat.php’ to the /wp-content/plugins/ directory
-1. Activate the plugin through the 'Plugins' menu in WordPress
-1. Under Settings > Chartbeat, add your User ID
-1. (Optional) Add your API key and configure the widget
-1. (Optional) Drag the widget into your sidebar under Appearance > Widgets
+1. Upload `chartbeat.php` to the `/wp-content/plugins/` directory
+2. Activate the plugin through the 'Plugins' menu in WordPress
+3. Under Settings > Chartbeat, add your User ID
+4. You may also add your API key and configure the widget (API key must have "all" persmissions).
+5. Select Newsbeat if you're using it
+6. If you want to use the widget, drag it into your sidebar under Appearance > Widgets
 
+*Note that you must have your timezone set correctly for events to work properly in
+the historical chart.
 
 == Frequently Asked Questions ==
 
@@ -61,3 +63,6 @@ Nope. Chartbeat code is completely asynchronous, meaning it doesn't begin to run
 
 = 1.4.1 = 
 * Fix widget error in logs *
+
+= 2.0 =
+* Added Dashboard Widget, Active Visits in Post Board and Embedded Console
