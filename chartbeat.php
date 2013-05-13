@@ -308,7 +308,7 @@ function add_chartbeat_footer() {
 		  }
 		  var oldonload = window.onload;
 		  window.onload = (typeof window.onload != 'function') ?
-			 loadChartbeat : function() { oldonload(); loadChartbeat(); };
+			 loadChartbeat : function() { try { oldonload(); } catch (e) { loadChartbeat(); throw e} loadChartbeat(); };
 		})();
 		</script>
 		<?php
