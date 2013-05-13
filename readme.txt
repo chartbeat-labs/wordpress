@@ -3,7 +3,7 @@ Contributors: chartbeat
 Tags: chartbeat, analytics
 Requires at least: 2.8
 Tested up to: 3.5.1
-Stable tag: 2.0.1
+Stable tag: 2.0.2
 
 The Chartbeat plugin automatically adds real-time data and a top pages widget to your blog. See who’s on your site, what they’re doing - right now
 
@@ -66,3 +66,6 @@ Nope. Chartbeat code is completely asynchronous, meaning it doesn't begin to run
 
 = 2.0 =
 * Added Dashboard Widget, Active Visits in Post Board and Embedded Console
+
+= 2.0.2 =
+* Updated handling of window load event to ensure Chartbeat is always loaded
