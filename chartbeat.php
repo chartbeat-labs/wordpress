@@ -265,7 +265,7 @@ function add_chartbeat_footer() {
 		<script type="text/javascript">
 		var _sf_async_config={};
 		_sf_async_config.uid = <?php echo intval( $user_id ); ?>;
-		_sf_async_config.useCanonical = <?php echo $use_canonical; ?>;
+		_sf_async_config.useCanonical = <?php echo esc_js( $use_canonical ); ?>;
 		<?php
 		$enable_newsbeat = get_option('chartbeat_enable_newsbeat');
 		$domain = apply_filters( 'chartbeat_config_domain', chartbeat_get_display_url (get_option('home')) );
@@ -347,7 +347,7 @@ class Chartbeat_Widget extends WP_Widget {
 		<div id="cb_top_pages"></div>
 		<script type="text/javascript">
 		var options = { };
-		new CBTopPagesWidget( <?php echo get_option('chartbeat_widgetconfig'); ?> );
+		new CBTopPagesWidget( <?php echo json_encode( json_decode( get_option('chartbeat_widgetconfig') ) ); ?> );
 		</script>
 		<?php
 		endif;
@@ -380,7 +380,7 @@ function cbproxy_submit() {
 		set_transient($transient,$response,5);
 	}
 	
-	echo $response;
+	echo json_encode( json_decode( $response ) );
 	exit;
 }
 
@@ -541,7 +541,7 @@ function chartbeat_custom_columns($column_name, $id) {
 		jQuery.getJSON('<?php echo esc_js( $json_url ); ?>',
 			function(data) {
 				if ( !data.visits ) data.visits = 0;
-				jQuery('#post-<?php echo $id; ?> .cb_visits').append(data.visits);
+				jQuery('#post-<?php echo absint( $id ); ?> .cb_visits').append(data.visits);
 			}
 		);
 		</script>
