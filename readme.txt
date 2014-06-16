@@ -3,7 +3,7 @@ Contributors: chartbeat
 Tags: chartbeat, analytics
 Requires at least: 2.8
 Tested up to: 3.5.1
-Stable tag: 2.0.3
+Stable tag: 2.0.4
 
 The Chartbeat plugin automatically adds real-time data and a top pages widget to your blog. See who’s on your site, what they’re doing - right now
 
@@ -16,8 +16,8 @@ The Chartbeat plugin automatically adds real-time data and a top pages widget to
 1. Upload `chartbeat.php` to the `/wp-content/plugins/` directory
 2. Activate the plugin through the 'Plugins' menu in WordPress
 3. Under Settings > Chartbeat, add your User ID
-4. You may also add your API key and configure the widget (API key must have "all" persmissions).
-5. Select Newsbeat if you're using it
+4. You may also add your API key and configure the widget (API key must have "all" permissions).
+5. Select Chartbeat Publishing if you're using it
 6. If you want to use the widget, drag it into your sidebar under Appearance > Widgets
 
 *Note that you must have your timezone set correctly for events to work properly in
@@ -27,7 +27,7 @@ the historical chart.
 
 = What is Chartbeat? =
 
-We’re a real-time data service used by everyone from Foursquare to FoxNews to your mom’s blog (well, someone’s mom’s blog, if not yours.) 
+We’re a real-time data service used by everyone from Foursquare to Financial Times to your mom’s blog (well, someone’s mom’s blog, if not yours.) 
 
 Use Chartbeat (and this plugin) to see how many people are on your site and what they’re up to while they’re there, so you can take smarter real-time actions. Check it out for yourself by playing with our [demo](http://chartbeat.com/demo/) and sign up for [a free trial](https://chartbeat.com/signup/)!
 
@@ -50,7 +50,7 @@ Nope. Chartbeat code is completely asynchronous, meaning it doesn't begin to run
 == Changelog ==
 
 = 1.0 =
-* First verison. Please provide feedback.
+* First version. Please provide feedback.
 
 = 1.2 =
 * stable version
@@ -71,4 +71,7 @@ Nope. Chartbeat code is completely asynchronous, meaning it doesn't begin to run
 * Updated handling of window load event to ensure Chartbeat is always loaded
 
 = 2.0.3 =
-* Fixed issure where the Chartbeat console's iframe was too short to be usable
+* Fixed issue where the Chartbeat console's iframe was too short to be usable
+
+= 2.0.4 =
+* Remove Newsbeat reference, update json encoding
