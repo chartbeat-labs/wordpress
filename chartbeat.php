@@ -245,7 +245,9 @@ function chartbeat_is_validjson($json_str) {
 }
 
 function chartbeat_configs() {
-	$cb_configs['domain'] = esc_js( apply_filters( 'chartbeat_config_domain', chartbeat_get_display_url (get_option('home')) ));
+	$domain = apply_filters( 'chartbeat_config_domain', chartbeat_get_display_url (get_option('home')) );
+	$domain = preg_replace('#^www\.(.+\.)#i', '$1', $domain);
+	$cb_configs['domain'] = esc_js( $domain );
 
 	// Get Author and Sections
 	// Only add these values on blog posts use the queried object in case there
@@ -267,16 +269,7 @@ function chartbeat_configs() {
 		}
 
 		$sections = (array)apply_filters( 'chartbeat_config_sections', $cat_names );
-		if ( count( $sections ) ) {
-			foreach( $sections as $index => $name ) {
-				$sections[ $index ] = "'" . esc_js( $name ) . "'";
-			}
-		}
-		$cb_configs['sections'] = $sections;
-
-	} else {
-		// Set default sections
-		$cb_configs['sections'] = array();
+		$cb_configs['sections'] = esc_js(implode( ", ", $sections));
 	}
 
 
@@ -308,12 +301,12 @@ function add_chartbeat_footer() {
 		_sf_async_config.uid = <?php echo intval( $user_id ); ?>;
 		_sf_async_config.domain = "<?php echo $cb_configs["domain"]; ?>";
 		_sf_async_config.useCanonical = <?php echo $cb_configs["use_canonical"]; ?>;
-		<?php
-		$enable_newsbeat = get_option('chartbeat_enable_newsbeat');
-		if ($enable_newsbeat) { ?>
-			_sf_async_config.authors = "<?php echo $cb_configs["author"] ?>";
-			_sf_async_config.sections = "<?php echo implode( ", ", $cb_configs["sections"]) ?>";
-		<?php } ?>
+<?php
+	$enable_newsbeat = get_option('chartbeat_enable_newsbeat');
+	if ($enable_newsbeat) { ?>
+		_sf_async_config.authors = "<?php echo $cb_configs["author"] ?>";
+		_sf_async_config.sections = "<?php echo $cb_configs["sections"]?>";
+<?php } ?>
 
 		(function(){
 		  function loadChartbeat() {
@@ -351,12 +344,12 @@ function chartbeat_amp_add_analytics_footer( $amp_template ) {
 	    {
 	      "vars": {
 	        "uid": <?php echo intval( $user_id ); ?>,
-					<?php
+<?php
 					$enable_newsbeat = get_option('chartbeat_enable_newsbeat');
 					if ($enable_newsbeat) { ?>
 	        "authors": "<?php echo $cb_configs["author"] ?>",
-	        "sections": "<?php echo implode( ", ", $cb_configs["sections"]) ?>",
-					<?php } ?>
+	        "sections": "<?php echo $cb_configs["sections"] ?>",
+<?php } ?>
 	        "domain": "<?php echo $cb_configs["domain"]; ?>"
 	      }
 	    }
