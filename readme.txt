@@ -1,9 +1,9 @@
 === Chartbeat ===
 Contributors: chartbeat
-Tags: chartbeat, analytics
+Tags: chartbeat, analytics, amp
 Requires at least: 2.8
-Tested up to: 3.5.1
-Stable tag: 2.0.4
+Tested up to: 4.4.2
+Stable tag: 2.0.5
 
 The Chartbeat plugin automatically adds real-time data and a top pages widget to your blog. See who’s on your site, what they’re doing - right now
 
@@ -75,3 +75,6 @@ Nope. Chartbeat code is completely asynchronous, meaning it doesn't begin to run
 
 = 2.0.4 =
 * Remove Newsbeat reference, update json encoding
+
+= 2.0.5 =
+* Add AMP support
