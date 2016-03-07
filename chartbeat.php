@@ -3,13 +3,13 @@
 Plugin Name: Chartbeat
 Plugin URI: http://chartbeat.com/wordpress/
 Description: Adds Chartbeat pinging to Wordpress.
-Version: 2.0.4
+Version: 2.0.5
 Author: Chartbeat
 Author URI: http://chartbeat.com/
 */
 
 /*
-Copyright 2009-2013 Chartbeat Inc.
+Copyright 2009-2016 Chartbeat Inc.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -244,6 +244,44 @@ function chartbeat_is_validjson($json_str) {
 	}
 }
 
+function chartbeat_configs() {
+	$domain = apply_filters( 'chartbeat_config_domain', chartbeat_get_display_url (get_option('home')) );
+	$domain = preg_replace('#^www\.(.+\.)#i', '$1', $domain);
+	$cb_configs['domain'] = esc_js( $domain );
+
+	// Get Author and Sections
+	// Only add these values on blog posts use the queried object in case there
+	// are multiple Loops on the page.
+	if (is_single()) {
+		$post = get_queried_object();
+
+		// Use the author's display name 
+		$author = esc_js( get_the_author_meta('display_name', $post->post_author) );
+		$cb_configs['author'] = apply_filters( 'chartbeat_config_author', $author );
+	
+		// Use the post's categories as sections
+		$cats = get_the_terms($post->ID, 'category');
+		if ($cats) {
+			$cat_names = array();
+			foreach ( $cats as $cat ) {
+				$cat_names[] = $cat->name;
+			}
+		}
+
+		$sections = (array)apply_filters( 'chartbeat_config_sections', $cat_names );
+		$cb_configs['sections'] = esc_js(implode( ", ", $sections));
+	}
+
+
+	if ( apply_filters( 'chartbeat_config_use_canonical', true ) )
+		$cb_configs['use_canonical'] = 'true';
+	else
+		$cb_configs['use_canonical'] = 'false';
+
+	return $cb_configs;
+
+}
+
 function add_chartbeat_head() {
 	echo "\n<script type=\"text/javascript\">var _sf_startpt=(new Date()).getTime()</script>\n";
 }
@@ -254,55 +292,21 @@ function add_chartbeat_footer() {
 		// if visitor is admin AND tracking is off, do not load chartbeat
 		if ( current_user_can( 'manage_options') && get_option('chartbeat_trackadmins') == 0)
 			return;
-
-		if ( apply_filters( 'chartbeat_config_use_canonical', true ) )
-			$use_canonical = 'true';
-		else
-			$use_canonical = 'false';
+		
+		$cb_configs = chartbeat_configs(); 
 		?>
 
-		<!-- /// LOAD CHARTBEAT /// -->
 		<script type="text/javascript">
 		var _sf_async_config={};
 		_sf_async_config.uid = <?php echo intval( $user_id ); ?>;
-		_sf_async_config.useCanonical = <?php echo esc_js( $use_canonical ); ?>;
-		<?php
-		$enable_newsbeat = get_option('chartbeat_enable_newsbeat');
-		$domain = apply_filters( 'chartbeat_config_domain', chartbeat_get_display_url (get_option('home')) );
-		if ($enable_newsbeat) { ?>
-			_sf_async_config.domain = '<?php echo esc_js( $domain ); ?>';
-			<?php 
-			// Only add these values on blog posts use the queried object in case there
-			// are multiple Loops on the page.
-			if (is_single()) {
-				$post = get_queried_object();
-
-				// Use the author's display name 
-				$author = get_the_author_meta('display_name', $post->post_author);
-				$author = apply_filters( 'chartbeat_config_author', $author );
-				printf( "_sf_async_config.authors = '%s';\n", esc_js( $author ) );
-			
-				// Use the post's categories as sections
-				$cats = get_the_terms($post->ID, 'category');
-
-				if ($cats) {
-					$cat_names = array();
-					foreach ( $cats as $cat ) {
-						$cat_names[] = $cat->name;
-					}
-				}
-
-				$cat_names = (array)apply_filters( 'chartbeat_config_sections', $cat_names );
-				if ( count( $cat_names ) ) {
-					foreach( $cat_names as $index => $name ) {
-						$cat_names[ $index ] = '"' . esc_js( $name ) . '"';
-					}
-					
-					printf( "_sf_async_config.sections = [%s];\n", implode( ', ', $cat_names ) );
-				}
-			}
-		} // if $enable_newsbeat
-		?>
+		_sf_async_config.domain = "<?php echo $cb_configs["domain"]; ?>";
+		_sf_async_config.useCanonical = <?php echo $cb_configs["use_canonical"]; ?>;
+<?php
+	$enable_newsbeat = get_option('chartbeat_enable_newsbeat');
+	if ($enable_newsbeat) { ?>
+		_sf_async_config.authors = "<?php echo $cb_configs["author"] ?>";
+		_sf_async_config.sections = "<?php echo $cb_configs["sections"]?>";
+<?php } ?>
 
 		(function(){
 		  function loadChartbeat() {
@@ -310,9 +314,7 @@ function add_chartbeat_footer() {
 			var e = document.createElement('script');
 			e.setAttribute('language', 'javascript');
 			e.setAttribute('type', 'text/javascript');
-			e.setAttribute('src',
-			   (("https:" == document.location.protocol) ? "https://" : "http://") +
-			   "static.chartbeat.com/js/chartbeat.js");
+			e.setAttribute('src', '//static.chartbeat.com/js/chartbeat.js');
 			document.body.appendChild(e);
 		  }
 		  var oldonload = window.onload;
@@ -320,9 +322,43 @@ function add_chartbeat_footer() {
 			 loadChartbeat : function() { try { oldonload(); } catch (e) { loadChartbeat(); throw e} loadChartbeat(); };
 		})();
 		</script>
-		<?php
+		<?php 
 	}
 }
+
+// LOAD AMP analytics code
+function chartbeat_amp_add_analytics_head( $amp_template ) {
+?>
+  <script async custom-element="amp-analytics" src="https://cdn.ampproject.org/v0/amp-analytics-0.1.js"></script>
+<?php
+}
+
+add_action( 'amp_post_template_head', 'chartbeat_amp_add_analytics_head' );
+
+
+function chartbeat_amp_add_analytics_footer( $amp_template ) { 
+	$cb_configs = chartbeat_configs(); 
+?>
+	<amp-analytics type="chartbeat">
+	  <script type="application/json">
+	    {
+	      "vars": {
+	        "uid": <?php echo intval( $user_id ); ?>,
+<?php
+					$enable_newsbeat = get_option('chartbeat_enable_newsbeat');
+					if ($enable_newsbeat) { ?>
+	        "authors": "<?php echo $cb_configs["author"] ?>",
+	        "sections": "<?php echo $cb_configs["sections"] ?>",
+<?php } ?>
+	        "domain": "<?php echo $cb_configs["domain"]; ?>"
+	      }
+	    }
+	  </script>
+	</amp-analytics>
+<?php
+}
+
+add_action( 'amp_post_template_footer', 'chartbeat_amp_add_analytics_footer' );
 
 class Chartbeat_Widget extends WP_Widget {
 
