@@ -30,6 +30,16 @@ function chartbeat_menu() {
 }
 add_action('admin_menu', 'chartbeat_menu');
 
+function chartbeat_accountid_error() {
+	$class = 'notice notice-error';
+	$message = 'You need to set your Chartbeat <a href="'.admin_url( 'options-general.php?page=chartbeat-options' ).'">Account ID</a> in the Chartbeat options page';
+
+	printf( '<div class="%1$s"><p>%2$s</p></div>', $class, $message ); 
+}
+if (!get_option('chartbeat_userid') ) {
+	add_action( 'admin_notices', 'chartbeat_accountid_error' );
+}
+
 function chartbeat_console() {
 	if (!current_user_can('edit_posts'))  {
 		wp_die( __('You do not have sufficient permissions to access this page.') );
@@ -116,9 +126,9 @@ function chartbeat_options_page() {
 				<tr>
 					<th scope="row">API Key<br/>
 					<?php if (get_option('chartbeat_enable_newsbeat')) { ?>
-						<small>Get API key <a href="http://chartbeat.com/newsbeat/settings/api-keys/">here</a></small>
+						<small>Get API key <a href="https://chartbeat.com/newsbeat/settings/api-keys/">here</a></small>
 					<?php } else { ?>
-						<small>Get API key <a href="http://chartbeat.com/apikeys/">here</a></small>
+						<small>Get API key <a href="https://chartbeat.com/apikeys/">here</a></small>
 					<?php } ?>
 					</th>
 					<td><input size="30" type="text" name="chartbeat_apikey" value="<?php echo esc_attr( get_option('chartbeat_apikey') ); ?>" />
@@ -326,39 +336,40 @@ function add_chartbeat_footer() {
 	}
 }
 
-// LOAD AMP analytics code
-function chartbeat_amp_add_analytics_head( $amp_template ) {
-?>
-  <script async custom-element="amp-analytics" src="https://cdn.ampproject.org/v0/amp-analytics-0.1.js"></script>
-<?php
+
+function chartbeat_amp_add_analytics( $analytics ) {
+  if ( ! is_array( $analytics ) ) {
+      $analytics = array();
+  }
+	$user_id = get_option('chartbeat_userid');
+	if ($user_id) {
+		// if visitor is admin AND tracking is off, do not load chartbeat
+		if ( current_user_can( 'manage_options') && get_option('chartbeat_trackadmins') == 0)
+			return $analytics ;
+
+		$cb_configs = chartbeat_configs(); 
+
+		$analytics['chartbeat'] = array(
+	    'type' => 'chartbeat',
+	    'attributes' => array(),
+	    'config_data' => array(
+	        'vars' => array(
+	            'uid' => intval( $user_id ),
+	            'domain' => $cb_configs["domain"],
+	        )
+	    ),
+	  );
+
+	  $enable_newsbeat = get_option('chartbeat_enable_newsbeat');
+		if ($enable_newsbeat) { 
+			$analytics['chartbeat']['config_data']['vars']['authors'] = $cb_configs['author'];
+			$analytics['chartbeat']['config_data']['vars']['sections'] = $cb_configs['sections'];
+		}
+	}
+	return $analytics;
 }
 
-add_action( 'amp_post_template_head', 'chartbeat_amp_add_analytics_head' );
-
-
-function chartbeat_amp_add_analytics_footer( $amp_template ) { 
-	$cb_configs = chartbeat_configs(); 
-?>
-	<amp-analytics type="chartbeat">
-	  <script type="application/json">
-	    {
-	      "vars": {
-	        "uid": <?php echo intval( $user_id ); ?>,
-<?php
-					$enable_newsbeat = get_option('chartbeat_enable_newsbeat');
-					if ($enable_newsbeat) { ?>
-	        "authors": "<?php echo $cb_configs["author"] ?>",
-	        "sections": "<?php echo $cb_configs["sections"] ?>",
-<?php } ?>
-	        "domain": "<?php echo $cb_configs["domain"]; ?>"
-	      }
-	    }
-	  </script>
-	</amp-analytics>
-<?php
-}
-
-add_action( 'amp_post_template_footer', 'chartbeat_amp_add_analytics_footer' );
+add_filter( 'amp_post_template_analytics', 'chartbeat_amp_add_analytics' );
 
 class Chartbeat_Widget extends WP_Widget {
 
@@ -400,7 +411,7 @@ function cbproxy_submit() {
 	$nonce = $_GET['cbnonce'];
 	if ( ! wp_verify_nonce( $nonce, 'cbproxy-nonce' ) ) die ( 'cbproxy-nonce failed!');
 	$domain = apply_filters( 'chartbeat_config_domain', chartbeat_get_display_url (get_option('home')) );
-	$url = 'http://api.chartbeat.com';
+	$url = 'https://api.chartbeat.com';
 	$url .= $_GET['url'];
 	$url .= '&host=' . chartbeat_get_display_url(esc_js($domain)) .'&apikey=' . get_option('chartbeat_apikey');
 	$transient = 'cbproxy_' . md5($url);
