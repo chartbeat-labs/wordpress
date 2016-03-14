@@ -296,28 +296,34 @@ function add_chartbeat_head() {
 	echo "\n<script type=\"text/javascript\">var _sf_startpt=(new Date()).getTime()</script>\n";
 }
 
+function add_chartbeat_config(){
+		
+		$cb_configs = chartbeat_configs();?>
+<script type="text/javascript">
+			var _sf_async_config={};
+			_sf_async_config.uid = <?php echo intval( $user_id ); ?>;
+			_sf_async_config.domain = "<?php echo $cb_configs["domain"]; ?>";
+			_sf_async_config.useCanonical = <?php echo $cb_configs["use_canonical"]; ?>;
+<?php
+		$enable_newsbeat = get_option('chartbeat_enable_newsbeat');
+		if ($enable_newsbeat) { ?>
+			_sf_async_config.authors = "<?php echo $cb_configs["author"] ?>";
+			_sf_async_config.sections = "<?php echo $cb_configs["sections"]?>";
+	<?php }
+
+}
+
 function add_chartbeat_footer() {
 	$user_id = get_option('chartbeat_userid');
 	if ($user_id) {
+
 		// if visitor is admin AND tracking is off, do not load chartbeat
 		if ( current_user_can( 'manage_options') && get_option('chartbeat_trackadmins') == 0)
-			return;
+			return $analytics ;
+
+		add_chartbeat_config();
 		
-		$cb_configs = chartbeat_configs(); 
 		?>
-
-		<script type="text/javascript">
-		var _sf_async_config={};
-		_sf_async_config.uid = <?php echo intval( $user_id ); ?>;
-		_sf_async_config.domain = "<?php echo $cb_configs["domain"]; ?>";
-		_sf_async_config.useCanonical = <?php echo $cb_configs["use_canonical"]; ?>;
-<?php
-	$enable_newsbeat = get_option('chartbeat_enable_newsbeat');
-	if ($enable_newsbeat) { ?>
-		_sf_async_config.authors = "<?php echo $cb_configs["author"] ?>";
-		_sf_async_config.sections = "<?php echo $cb_configs["sections"]?>";
-<?php } ?>
-
 		(function(){
 		  function loadChartbeat() {
 			window._sf_endpt=(new Date()).getTime();
@@ -370,6 +376,26 @@ function chartbeat_amp_add_analytics( $analytics ) {
 }
 
 add_filter( 'amp_post_template_analytics', 'chartbeat_amp_add_analytics' );
+
+function chartbeat_fbia_analytics( $analytics ) {
+	$user_id = get_option('chartbeat_userid');
+	if ($user_id) {
+		// if visitor is admin AND tracking is off, do not load chartbeat
+		if ( current_user_can( 'manage_options') && get_option('chartbeat_trackadmins') == 0)
+			return $analytics ;
+
+		add_chartbeat_config();
+		
+	?>
+		window._sf_endpt=(new Date()).getTime();
+		</script>
+		<script defer src="//static.chartbeat.com/js/chartbeat_fia.js"></script>
+
+	<?php
+	}
+}
+
+add_action( 'instant_articles_article_header', 'chartbeat_fbia_analytics' );
 
 class Chartbeat_Widget extends WP_Widget {
 
