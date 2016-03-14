@@ -30,15 +30,21 @@ function chartbeat_menu() {
 }
 add_action('admin_menu', 'chartbeat_menu');
 
-function chartbeat_accountid_error() {
-	$class = 'notice notice-error';
-	$message = 'You need to set your Chartbeat <a href="'.admin_url( 'options-general.php?page=chartbeat-options' ).'">Account ID</a> in the Chartbeat options page';
+function check_chartbeat_accountid_error() {
+	if (!get_option('chartbeat_userid') ) {
+		add_action( 'admin_notices', 'display_chartbeat_accountid_error' );
+}
 
-	printf( '<div class="%1$s"><p>%2$s</p></div>', $class, $message ); 
+function display_chartbeat_accountid_error() {
+		$class = 'notice notice-error';
+		$message = 'You need to set your Chartbeat <a href="'.admin_url( esc_url('options-general.php?page=chartbeat-options' )).'">Account ID</a> in the Chartbeat options page';
+
+		printf( '<div class="%1$s"><p>%2$s</p></div>', $class, $message );
+	}
 }
-if (!get_option('chartbeat_userid') ) {
-	add_action( 'admin_notices', 'chartbeat_accountid_error' );
-}
+
+add_action( 'admin_init', 'check_chartbeat_accountid_error', 1 );
+
 
 function chartbeat_console() {
 	if (!current_user_can('edit_posts'))  {
@@ -259,6 +265,9 @@ function chartbeat_configs() {
 	$domain = preg_replace('#^www\.(.+\.)#i', '$1', $domain);
 	$cb_configs['domain'] = esc_js( $domain );
 
+	$user_id = get_option('chartbeat_userid');
+	$cb_configs['uid'] = esc_js( $user_id );
+
 	// Get Author and Sections
 	// Only add these values on blog posts use the queried object in case there
 	// are multiple Loops on the page.
@@ -301,7 +310,7 @@ function add_chartbeat_config(){
 		$cb_configs = chartbeat_configs();?>
 <script type="text/javascript">
 			var _sf_async_config={};
-			_sf_async_config.uid = <?php echo intval( $user_id ); ?>;
+			_sf_async_config.uid = <?php echo $cb_configs["uid"]; ?>;
 			_sf_async_config.domain = "<?php echo $cb_configs["domain"]; ?>";
 			_sf_async_config.useCanonical = <?php echo $cb_configs["use_canonical"]; ?>;
 <?php
@@ -360,7 +369,7 @@ function chartbeat_amp_add_analytics( $analytics ) {
 	    'attributes' => array(),
 	    'config_data' => array(
 	        'vars' => array(
-	            'uid' => intval( $user_id ),
+	            'uid' => $cb_configs["uid"],
 	            'domain' => $cb_configs["domain"],
 	        )
 	    ),
