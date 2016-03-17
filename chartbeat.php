@@ -263,10 +263,10 @@ function chartbeat_is_validjson($json_str) {
 function chartbeat_configs() {
 	$domain = apply_filters( 'chartbeat_config_domain', chartbeat_get_display_url (get_option('home')) );
 	$domain = preg_replace('#^www\.(.+\.)#i', '$1', $domain);
-	$cb_configs['domain'] = esc_js( $domain );
+	$cb_configs['domain'] = $domain;
 
 	$user_id = get_option('chartbeat_userid');
-	$cb_configs['uid'] = esc_js( $user_id );
+	$cb_configs['uid'] = $user_id;
 
 	// Get Author and Sections
 	// Only add these values on blog posts use the queried object in case there
@@ -275,7 +275,7 @@ function chartbeat_configs() {
 		$post = get_queried_object();
 
 		// Use the author's display name 
-		$author = esc_js( get_the_author_meta('display_name', $post->post_author) );
+		$author = get_the_author_meta('display_name', $post->post_author);
 		$cb_configs['author'] = apply_filters( 'chartbeat_config_author', $author );
 	
 		// Use the post's categories as sections
@@ -288,7 +288,7 @@ function chartbeat_configs() {
 		}
 
 		$sections = (array)apply_filters( 'chartbeat_config_sections', $cat_names );
-		$cb_configs['sections'] = esc_js(implode( ", ", $sections));
+		$cb_configs['sections'] = implode( ", ", $sections);
 	}
 
 
@@ -307,18 +307,18 @@ function add_chartbeat_head() {
 
 function add_chartbeat_config(){
 		
-		$cb_configs = chartbeat_configs();?>
-<script type="text/javascript">
+		$cb_configs = chartbeat_configs();
+		?>
 			var _sf_async_config={};
-			_sf_async_config.uid = <?php echo $cb_configs["uid"]; ?>;
-			_sf_async_config.domain = "<?php echo $cb_configs["domain"]; ?>";
-			_sf_async_config.useCanonical = <?php echo $cb_configs["use_canonical"]; ?>;
-<?php
+			_sf_async_config.uid = <?php echo esc_js($cb_configs["uid"]); ?>;
+			_sf_async_config.domain = "<?php echo esc_js($cb_configs["domain"]); ?>";
+			_sf_async_config.useCanonical = <?php echo esc_js($cb_configs["use_canonical"]); ?>;
+	<?php
 		$enable_newsbeat = get_option('chartbeat_enable_newsbeat');
 		if ($enable_newsbeat) { ?>
-			_sf_async_config.authors = "<?php echo $cb_configs["author"] ?>";
-			_sf_async_config.sections = "<?php echo $cb_configs["sections"]?>";
-	<?php }
+		 _sf_async_config.authors = "<?php echo esc_js($cb_configs["author"]); ?>";
+			_sf_async_config.sections = "<?php echo esc_js($cb_configs["sections"]); ?>";
+		<?php }
 
 }
 
@@ -329,12 +329,12 @@ function add_chartbeat_footer() {
 		// if visitor is admin AND tracking is off, do not load chartbeat
 		if ( current_user_can( 'manage_options') && get_option('chartbeat_trackadmins') == 0)
 			return $analytics ;
-
-		add_chartbeat_config();
 		
 		?>
-		(function(){
-		  function loadChartbeat() {
+<script type="text/javascript">
+<?php echo add_chartbeat_config(); ?>
+	(function(){
+	  		function loadChartbeat() {
 			window._sf_endpt=(new Date()).getTime();
 			var e = document.createElement('script');
 			e.setAttribute('language', 'javascript');
@@ -369,16 +369,16 @@ function chartbeat_amp_add_analytics( $analytics ) {
 	    'attributes' => array(),
 	    'config_data' => array(
 	        'vars' => array(
-	            'uid' => $cb_configs["uid"],
-	            'domain' => $cb_configs["domain"],
+	            'uid' => esc_js($cb_configs["uid"]),
+	            'domain' => esc_js($cb_configs["domain"]),
 	        )
 	    ),
 	  );
 
 	  $enable_newsbeat = get_option('chartbeat_enable_newsbeat');
 		if ($enable_newsbeat) { 
-			$analytics['chartbeat']['config_data']['vars']['authors'] = $cb_configs['author'];
-			$analytics['chartbeat']['config_data']['vars']['sections'] = $cb_configs['sections'];
+			$analytics['chartbeat']['config_data']['vars']['authors'] = esc_js($cb_configs['author']);
+			$analytics['chartbeat']['config_data']['vars']['sections'] = esc_js($cb_configs['sections']);
 		}
 	}
 	return $analytics;
@@ -392,14 +392,16 @@ function chartbeat_fbia_analytics( $analytics ) {
 		// if visitor is admin AND tracking is off, do not load chartbeat
 		if ( current_user_can( 'manage_options') && get_option('chartbeat_trackadmins') == 0)
 			return $analytics ;
-
-		add_chartbeat_config();
-		
 	?>
-		window._sf_endpt=(new Date()).getTime();
-		</script>
-		<script defer src="//static.chartbeat.com/js/chartbeat_fia.js"></script>
-
+	<figure class="op-tracker">
+    <iframe>
+			<script type="text/javascript">
+			<?php echo add_chartbeat_config(); ?>
+			window._sf_endpt=(new Date()).getTime();
+			</script>
+			<script defer src="//static.chartbeat.com/js/chartbeat_fia.js"></script>
+    </iframe>
+</figure>
 	<?php
 	}
 }
