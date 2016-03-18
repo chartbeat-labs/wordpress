@@ -247,10 +247,12 @@ function chartbeat_register_settings() {
 function chartbeat_is_validdomain($domain)
 {
 	//reg expr validating domain
-  	if( !empty($domain) && preg_match('/^(([a-zA-Z]{1})|([a-zA-Z]{1}[a-zA-Z]{1})|([a-zA-Z]{1}[0-9]{1})|([0-9]{1}[a-zA-Z]{1})|([a-zA-Z0-9][a-zA-Z0-9-_]{1,61}[a-zA-Z0-9]))\.([a-zA-Z]{2,6}|[a-zA-Z0-9-]{2,30}\.[a-zA-Z]{2,3})$/', $domain) ) {
-  		return $domain;
-  	} else {
-  		add_settings_error( 'chartbeat_domain','invalid_domain','Domain is not correct, please check again', 'error');
+  	if( !empty($domain)) {
+  		if (preg_match('/^(([a-zA-Z]{1})|([a-zA-Z]{1}[a-zA-Z]{1})|([a-zA-Z]{1}[0-9]{1})|([0-9]{1}[a-zA-Z]{1})|([a-zA-Z0-9][a-zA-Z0-9-_]{1,61}[a-zA-Z0-9]))\.([a-zA-Z]{2,6}|[a-zA-Z0-9-]{2,30}\.[a-zA-Z]{2,3})$/', $domain) ) {
+  			return $domain;
+  		} else {
+  			add_settings_error( 'chartbeat_domain','invalid_domain','Domain is not correct, please check again', 'error');
+  		}
   	}
 }
 
