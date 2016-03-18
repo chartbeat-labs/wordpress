@@ -1,9 +1,9 @@
 === Chartbeat ===
 Contributors: chartbeat
-Tags: chartbeat, analytics, amp
+Tags: chartbeat, analytics, amp, instant articles
 Requires at least: 2.8
 Tested up to: 4.4.2
-Stable tag: 2.0.5
+Stable tag: 2.0.6
 
 The Chartbeat plugin automatically adds real-time data and a top pages widget to your blog. See who’s on your site, what they’re doing - right now
 
@@ -19,6 +19,11 @@ The Chartbeat plugin automatically adds real-time data and a top pages widget to
 4. You may also add your API key and configure the widget (API key must have "all" permissions).
 5. Select Chartbeat Publishing if you're using it
 6. If you want to use the widget, drag it into your sidebar under Appearance > Widgets
+
+To enable AMP and Facebook Instant Article analytics you just need to install the corresponding plugins. Chartbeat will be included automatically.
+https://wordpress.org/plugins/amp/
+https://wordpress.org/plugins/fb-instant-articles/
+
 
 *Note that you must have your timezone set correctly for events to work properly in
 the historical chart.
@@ -78,3 +83,8 @@ Nope. Chartbeat code is completely asynchronous, meaning it doesn't begin to run
 
 = 2.0.5 =
 * Add AMP support
+
+= 2.0.6 =
+* Fix AMP uid bug
+* Add admin warning
+* Add Facebook Instant Article Support
