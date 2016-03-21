@@ -21,8 +21,9 @@ The Chartbeat plugin automatically adds real-time data and a top pages widget to
 6. If you want to use the widget, drag it into your sidebar under Appearance > Widgets
 
 To enable AMP and Facebook Instant Article analytics you just need to install the corresponding plugins. Chartbeat will be included automatically.
-https://wordpress.org/plugins/amp/
-https://wordpress.org/plugins/fb-instant-articles/
+
+* <https://wordpress.org/plugins/amp/>
+* <https://wordpress.org/plugins/fb-instant-articles/>
 
 
 *Note that you must have your timezone set correctly for events to work properly in
