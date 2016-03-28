@@ -37,7 +37,7 @@ function check_chartbeat_accountid_error() {
 
 function display_chartbeat_accountid_error() {
 		$class = 'notice notice-error';
-		$message = 'You need to set your Chartbeat <a href="'.admin_url( esc_url('options-general.php?page=chartbeat-options' )).'">Account ID</a> in the Chartbeat options page';
+		$message = 'You need to set your Chartbeat <a href="'.esc_url(admin_url('options-general.php?page=chartbeat-options')).'">Account ID</a> in the Chartbeat options page';
 
 		printf( '<div class="%1$s"><p>%2$s</p></div>', $class, $message );
 	}
@@ -431,7 +431,7 @@ class Chartbeat_Widget extends WP_Widget {
 		<div id="cb_top_pages"></div>
 		<script type="text/javascript">
 		var options = { };
-		new CBTopPagesWidget( <?php echo json_encode( json_decode( get_option('chartbeat_widgetconfig') ) ); ?> );
+		new CBTopPagesWidget( <?php echo json_encode(get_option('chartbeat_widgetconfig')); ?> );
 		</script>
 		<?php
 		endif;
@@ -450,9 +450,9 @@ function cbproxy_submit() {
 	$domain = apply_filters( 'chartbeat_config_domain', chartbeat_get_display_url (get_option('home')) );
 	$url = 'https://api.chartbeat.com';
 	$url .= $_GET['url'];
-	$url .= '&host=' . chartbeat_get_display_url(esc_js($domain)) .'&apikey=' . get_option('chartbeat_apikey');
+	$url .= '&host=' . chartbeat_get_display_url(esc_js($domain)) .'&apikey=' . urlencode(get_option('chartbeat_apikey'));
 	$transient = 'cbproxy_' . md5($url);
-	header( 'Content-Type: application/json' );
+	header( 'Content-Type: application/jsonp' );
 	$response = get_transient( $transient );
 	if ( !$response ) {
 		$get = wp_remote_get( $url , array( 'timeout' => 3 ) );
@@ -464,7 +464,7 @@ function cbproxy_submit() {
 		set_transient($transient,$response,5);
 	}
 	
-	echo json_encode( json_decode( $response ) );
+	echo htmlspecialchars_decode( esc_js($response) );
 	exit;
 }
 
@@ -581,17 +581,12 @@ function chartbeat_add_dashboard_widgets() {
 		return;
 
 	wp_enqueue_style( 'cbplugin_css' );
-	// wp_enqueue_script( 'closure' );
-	// wp_enqueue_script( 'deps' );
 	wp_enqueue_script( 'cbdashboard' );
 	wp_add_dashboard_widget('chartbeat_dashboard_widget', 'Chartbeat', 'chartbeat_dashboard_widget_function');
 }
 
 function chartbeat_plugin_admin_init() {
 	wp_register_style('cbplugin_css',plugins_url('media/cb_plugin.css', __FILE__));
-	// wp_register_script( 'closure','http://local.chartbeat.com/chartbeat/frontend/js/closure-library-read-only/closure/goog/base.js');
-	// wp_register_script( 'deps','http://local.chartbeat.com/chartbeat/frontend/js/deps.js');
-	// wp_register_script( 'cbdashboard','http://local.chartbeat.com/chartbeat/frontend/js/cmswidgets/cbdashboard.js');
 
 	wp_register_script( 'cbdashboard',plugins_url('media/cbdashboard.compiled.js', __FILE__));
 }
