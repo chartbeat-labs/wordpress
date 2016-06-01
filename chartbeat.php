@@ -512,18 +512,24 @@ function chartbeat_dashboard_widget_function() {
 	var events = [];
 	// Get published post Events 
 	<?php
-	$args = array( 'post_type' => array( 'post' ),'post_status' => 'publish', 'orderby' => 'date', 'order' => 'ASC' );
-	$the_query = new WP_Query( $args );
-	$domain = apply_filters( 'chartbeat_config_domain', chartbeat_get_display_url (get_option('home')) );
-	while ( $the_query->have_posts() ) : $the_query->the_post(); 
-		$tstamp = get_the_time('Y,n-1,j,G,i');
-		if ($tstamps[$tstamp])
-			continue; 
+	$the_query = get_transient('chartbeat_published_widget');
+	if ( $the_query === false ) {
+		$args = array( 'post_type' => array( 'post' ),'post_status' => 'publish', 'orderby' => 'date', 'order' => 'ASC' );
+		$the_query = new WP_Query( $args );
+		set_transient( 'chartbeat_published_widget', $the_query,  1 * HOUR_IN_SECONDS );
+	}
 
-		$tstamps[$tstamp] = true;
-		$category = get_the_category();
-		if($category[0])
-			$category_link = get_category_link($category[0]->cat_ID );
+
+	$domain = apply_filters( 'chartbeat_config_domain', chartbeat_get_display_url( get_option( 'home' ) ) );
+	while ( $the_query->have_posts() ) : $the_query->the_post();
+	$tstamp = get_the_time( 'Y,n-1,j,G,i' );
+	if ( ! empty( $tstamps[ $tstamp ] ) )
+		continue;
+
+	$tstamps[ $tstamp ] = true;
+	$category = get_the_category();
+	if ( ! empty( $category[ 0 ] ) )
+		$category_link = get_category_link($category[0]->cat_ID );
 
 		?>var ev = {domain:'<?php echo esc_js( chartbeat_get_display_url( $domain ) );?>',title:'<?php echo esc_js( get_the_title() ); ?>',
 	  	value:'<?php echo esc_js( chartbeat_get_display_url( $category_link ) ); ?>', group_name:'<?php echo esc_js( chartbeat_get_display_url( get_page_link() ) ); ?>',
@@ -535,17 +541,21 @@ function chartbeat_dashboard_widget_function() {
 
 	// Get revisions
 	<?php
-	$args = array( 'post_type' => array( 'revision' ), 'post_status' => 'inherit', 'orderby' => 'date', 'order' => 'ASC' );
-	$the_query = new WP_Query( $args );
+	$the_query = get_transient('chartbeat_revision_widget');
+	if ( $the_query === false ) {
+		$args = array( 'post_type' => array( 'revision' ), 'post_status' => 'inherit', 'orderby' => 'date', 'order' => 'ASC' );
+		$the_query = new WP_Query( $args );
+		set_transient( 'chartbeat_revision_widget', $the_query, 'default', 1 * HOUR_IN_SECONDS );
+	}
 	while( $the_query->have_posts() ) : $the_query->the_post();
-		$tstamp = get_the_time('Y,n-1,j,G,i');
-		if ($tstamps[$tstamp])
-			continue;
+	$tstamp = get_the_time('Y,n-1,j,G,i');
+	if ( ! empty( $tstamps[$tstamp]) )
+		continue;
 
-		$tstamps[$tstamp] = true;
-		$category = get_the_category();
-		if($category[0])
-			$category_link = get_category_link($category[0]->cat_ID );
+	$tstamps[$tstamp] = true;
+	$category = get_the_category();
+	if ( ! empty( $category[ 0 ] ) )
+		$category_link = get_category_link($category[0]->cat_ID );
 
 		?>var ev = {domain:'<?php echo esc_js( chartbeat_get_display_url( $domain ) ); ?>',title:'<?php echo esc_js( get_the_title() ); ?>',
 	  	value:'<?php echo esc_js( chartbeat_get_display_url( $category_link ) ); ?>',group_name:'<?php echo esc_js( chartbeat_get_display_url( get_page_link() ) ); ?>',
