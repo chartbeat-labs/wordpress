@@ -328,7 +328,7 @@ function add_chartbeat_footer() {
 
 		// if visitor is admin AND tracking is off, do not load chartbeat
 		if ( current_user_can( 'manage_options') && get_option('chartbeat_trackadmins') == 0)
-			return $analytics ;
+			return ;
 		
 		?>
 <script type="text/javascript">
