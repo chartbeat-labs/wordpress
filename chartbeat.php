@@ -316,8 +316,8 @@ function add_chartbeat_config(){
 	<?php
 		$enable_newsbeat = get_option('chartbeat_enable_newsbeat');
 		if ($enable_newsbeat) { ?>
-		 _sf_async_config.authors = "<?php echo esc_js($cb_configs["author"]); ?>";
-			_sf_async_config.sections = "<?php echo esc_js($cb_configs["sections"]); ?>";
+			_sf_async_config.authors = "<?php echo esc_js( isset( $cb_configs["author"] ) ? $cb_configs["author"] : '' ); ?>";
+			_sf_async_config.sections = "<?php echo esc_js( isset( $cb_configs["sections"] ) ? $cb_configs["sections"] : '' ); ?>";
 		<?php }
 
 }
