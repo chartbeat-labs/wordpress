@@ -3,7 +3,7 @@ Contributors: chartbeat
 Tags: chartbeat, analytics, amp, instant articles
 Requires at least: 2.8
 Tested up to: 4.4.2
-Stable tag: 2.0.6
+Stable tag: 2.0.7
 
 The Chartbeat plugin automatically adds real-time data and a top pages widget to your blog. See who’s on your site, what they’re doing - right now
 
@@ -89,3 +89,7 @@ Nope. Chartbeat code is completely asynchronous, meaning it doesn't begin to run
 * Fix AMP uid bug
 * Add admin warning
 * Add Facebook Instant Article Support
+
+= 2.0.7 =
+* Add 'chartbeat_config_path' filter to return a 'path' to Chartbeat configuration
+* Fix return when tracking is off for admin
