@@ -318,17 +318,31 @@ function chartbeat_configs() {
 
 function add_chartbeat_head() {
 	echo "\n<script type=\"text/javascript\">var _sf_startpt=(new Date()).getTime()</script>\n";
+	if( 1 == get_option( 'chartbeat_enable_headline_testing' ) ) :
+		$cb_configs = chartbeat_configs();
+	?>
+		<script type="text/javascript">
+			var _sf_async_config = _sf_async_config || {};
+			_sf_async_config.uid = <?php echo esc_js($cb_configs["uid"]); ?>;
+			_sf_async_config.domain = "<?php echo esc_js($cb_configs["domain"]); ?>";
+			_sf_async_config.useCanonical = <?php echo esc_js($cb_configs["use_canonical"]); ?>;
+		</script>
+		<script src="//static.chartbeat.com/js/chartbeat_mab.js"></script>
+	<?php
+	endif;
 }
 
 function add_chartbeat_config(){
 		
 		$cb_configs = chartbeat_configs();
+		if( 1 != get_option( 'chartbeat_enable_headline_testing' ) ) :
 		?>
 			var _sf_async_config={};
 			_sf_async_config.uid = <?php echo esc_js($cb_configs["uid"]); ?>;
 			_sf_async_config.domain = "<?php echo esc_js($cb_configs["domain"]); ?>";
 			_sf_async_config.useCanonical = <?php echo esc_js($cb_configs["use_canonical"]); ?>;
 	<?php
+		endif;
 		$enable_newsbeat = get_option('chartbeat_enable_newsbeat');
 		if ($enable_newsbeat) { ?>
 		 _sf_async_config.authors = "<?php echo esc_js($cb_configs["author"]); ?>";
@@ -346,30 +360,23 @@ function add_chartbeat_footer() {
 			return $analytics ;
 		
 		?>
-<script type="text/javascript">
-<?php
-	echo add_chartbeat_config();
-	$chartbeat_url = '//static.chartbeat.com/js/chartbeat.js'
-	if( 1 == get_option( 'chartbeat_enable_headline_testing' ) ) {
-		$chartbeat_url = '//static.chartbeat.com/js/chartbeat_mab.js';
-	}
-
-?>
-	(function(){
-	  		function loadChartbeat() {
-			window._sf_endpt=(new Date()).getTime();
-			var e = document.createElement('script');
-			e.setAttribute('language', 'javascript');
-			e.setAttribute('type', 'text/javascript');
-			e.setAttribute('src', '<?php echo $chartbeat_url; ?>');
-			document.body.appendChild(e);
-		  }
-		  var oldonload = window.onload;
-		  window.onload = (typeof window.onload != 'function') ?
-			 loadChartbeat : function() { try { oldonload(); } catch (e) { loadChartbeat(); throw e} loadChartbeat(); };
-		})();
+		<script type="text/javascript">
+			<?php echo add_chartbeat_config(); ?>
+			(function(){
+			        function loadChartbeat() {
+					window._sf_endpt=(new Date()).getTime();
+					var e = document.createElement('script');
+					e.setAttribute('language', 'javascript');
+					e.setAttribute('type', 'text/javascript');
+					e.setAttribute('src', '//static.chartbeat.com/js/chartbeat.js');
+					document.body.appendChild(e);
+				  }
+				  var oldonload = window.onload;
+				  window.onload = (typeof window.onload != 'function') ?
+					 loadChartbeat : function() { try { oldonload(); } catch (e) { loadChartbeat(); throw e} loadChartbeat(); };
+				})();
 		</script>
-		<?php 
+<?php
 	}
 }
 
