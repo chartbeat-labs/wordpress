@@ -129,6 +129,20 @@ function chartbeat_options_page() {
 						No
 					</td>
 				</tr>
+
+				<tr>
+					<th scope="row">
+						<?php _e('Enable Headline Testing?','chartbeat'); ?><br />
+						<small>Sign up for <a href="https://chartbeat.com/publishing/headline-optimization/">Headline Testing</a></small>
+					</th>
+					<td>
+						<input type="radio" name="chartbeat_enable_headline_testing" value="1" <?php checked( get_option('chartbeat_enable_headline_testing'), 1 ); ?> />
+						Yes
+						<input type="radio" name="chartbeat_enable_headline_testing" value="0" <?php checked( get_option('chartbeat_enable_headline_testing'), 0 ); ?> />
+						No
+					</td>
+				</tr>
+
 				<tr>
 					<th scope="row">API Key<br/>
 					<?php if (get_option('chartbeat_enable_newsbeat')) { ?>
@@ -241,6 +255,7 @@ function chartbeat_register_settings() {
 	register_setting('chartbeat-options','chartbeat_widgetconfig','chartbeat_is_validjson');
 	register_setting('chartbeat-options','chartbeat_trackadmins','intval'); // add trackadmin setting
 	register_setting('chartbeat-options','chartbeat_enable_newsbeat','intval');
+	register_setting('chartbeat-options','chartbeat_enable_headline_testing','intval');
 }
 
 function chartbeat_is_validmd5($md5) {
@@ -332,14 +347,21 @@ function add_chartbeat_footer() {
 		
 		?>
 <script type="text/javascript">
-<?php echo add_chartbeat_config(); ?>
+<?php
+	echo add_chartbeat_config();
+	$chartbeat_url = '//static.chartbeat.com/js/chartbeat.js'
+	if( 1 == get_option( 'chartbeat_enable_headline_testing' ) ) {
+		$chartbeat_url = '//static.chartbeat.com/js/chartbeat_mab.js';
+	}
+
+?>
 	(function(){
 	  		function loadChartbeat() {
 			window._sf_endpt=(new Date()).getTime();
 			var e = document.createElement('script');
 			e.setAttribute('language', 'javascript');
 			e.setAttribute('type', 'text/javascript');
-			e.setAttribute('src', '//static.chartbeat.com/js/chartbeat.js');
+			e.setAttribute('src', '<?php echo $chartbeat_url; ?>');
 			document.body.appendChild(e);
 		  }
 		  var oldonload = window.onload;
