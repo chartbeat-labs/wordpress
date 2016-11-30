@@ -361,14 +361,18 @@ function add_chartbeat_footer() {
 		
 		?>
 		<script type="text/javascript">
-			<?php echo add_chartbeat_config(); ?>
+			<?php
+				echo add_chartbeat_config();
+				$default_chartbeat_url = "//static.chartbeat.com/js/chartbeat.js";
+				$chartbeat_url = apply_filters( 'chartbeat_url', $default_chartbeat_url );
+			?>
 			(function(){
 			        function loadChartbeat() {
 					window._sf_endpt=(new Date()).getTime();
 					var e = document.createElement('script');
 					e.setAttribute('language', 'javascript');
 					e.setAttribute('type', 'text/javascript');
-					e.setAttribute('src', '//static.chartbeat.com/js/chartbeat.js');
+					e.setAttribute('src', '<?php echo $chartbeat_url; ?>');
 					document.body.appendChild(e);
 				  }
 				  var oldonload = window.onload;
