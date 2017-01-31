@@ -3,13 +3,13 @@
 Plugin Name: Chartbeat
 Plugin URI: http://chartbeat.com/wordpress/
 Description: Adds Chartbeat pinging to Wordpress.
-Version: 2.0.6
+Version: 2.0.7
 Author: Chartbeat
 Author URI: http://chartbeat.com/
 */
 
 /*
-Copyright 2009-2016 Chartbeat Inc.
+Copyright 2009-2017 Chartbeat Inc.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
