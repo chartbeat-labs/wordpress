@@ -345,8 +345,8 @@ function add_chartbeat_config(){
 		endif;
 		$enable_newsbeat = get_option('chartbeat_enable_newsbeat');
 		if ($enable_newsbeat) { ?>
-		 _sf_async_config.authors = "<?php echo esc_js($cb_configs["author"]); ?>";
-			_sf_async_config.sections = "<?php echo esc_js($cb_configs["sections"]); ?>";
+			_sf_async_config.authors = "<?php echo esc_js( isset( $cb_configs["author"] ) ? $cb_configs["author"] : '' ); ?>";
+			_sf_async_config.sections = "<?php echo esc_js( isset( $cb_configs["sections"] ) ? $cb_configs["sections"] : '' ); ?>";
 		<?php }
 
 }
@@ -357,7 +357,7 @@ function add_chartbeat_footer() {
 
 		// if visitor is admin AND tracking is off, do not load chartbeat
 		if ( current_user_can( 'manage_options') && get_option('chartbeat_trackadmins') == 0)
-			return $analytics ;
+			return ;
 		
 		?>
 		<script type="text/javascript">
